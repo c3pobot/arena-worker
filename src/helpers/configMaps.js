@@ -18,6 +18,7 @@ const syncConfigMap = async()=>{
     setTimeout(syncConfigMap, 5000)
   }
 }
+syncConfigMap()
 module.exports = {
   configMaps
 }

@@ -56,6 +56,7 @@ module.exports.start = async()=>{
   try{
     await processLocalQue()
     que.process('*', +process.env.NUM_JOBS || 1, cmdProcessor)
+    console.log('starting '+(process.env.CMD_QUE_NAME || 'shardQue')+' processing with '+(process.env.NUM_JOBS || 1)+' workers')
   }catch(e){
     throw(e)
   }

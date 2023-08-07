@@ -151,7 +151,6 @@ module.exports = async(obj, oldData = null, pObj = null, chId = null, sId = null
       oldData.char.currentRank = currentCharRank
       dataChange++
       if(pObj && pObj.notify.status && pObj.notify.timeBeforePO > charPOhour){
-        if(debugMsg) console.log('Send Char Rank Change for ' + obj.name)
         if(!pObj.type || pObj.type === 1){
           charObj.notify = 1
           if(pObj.notify.method != 'log') NotifyRankChange(charObj)
@@ -163,7 +162,6 @@ module.exports = async(obj, oldData = null, pObj = null, chId = null, sId = null
       oldData.ship.currentRank = currentShipRank
       dataChange++
       if(pObj && pObj.notify.status && pObj.notify.timeBeforePO > shipPOhour){
-        if(debugMsg) console.log('Send Ship Rank Change for ' + obj.name)
         if(!pObj.type || pObj.type === 2) {
           shipObj.notify = 1
           if(pObj.notify.method != 'log') NotifyRankChange(shipObj)
@@ -172,7 +170,6 @@ module.exports = async(obj, oldData = null, pObj = null, chId = null, sId = null
       if(chId) SendRankChange(shipObj)
     }
     if(dataChange > 0){
-      if(debugMsg > 0) console.log(oldData.name +' has new player rank data.')
       oldData.TTL = new Date()
       mongo.set('rankCache', {_id: obj.playerId}, oldData)
       if(oldData.history){

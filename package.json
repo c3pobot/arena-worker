@@ -1,0 +1,33 @@
+{
+  "name": "poworker",
+  "version": "1.0.0",
+  "description": "po worker",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "update": "chmod a+x updategitdependency.sh && ./updategitdependency.sh",
+    "build": "chmod a+x buildtestimage.sh && ./buildtestimage.sh c3pobot-old/poworker",
+    "prod": "chmod a+x buildprodimage.sh && ./buildprodimage.sh c3pobot-old/poworker"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/c3po-shard/poworker.git"
+  },
+  "author": "scuba",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/c3po-shard/poworker/issues"
+  },
+  "homepage": "https://gitlab.com/c3po-shard/poworker#readme",
+  "dependencies": {
+    "async": "^3.2.0",
+    "botrequest": "github:c3pobot/botrequest",
+    "bottleneck": "^2.19.5",
+    "bull": "^4.10.4",
+    "json-array-sorter": "0.0.5",
+    "logger": "github:c3pobot/logger",
+    "mongoapiclient": "github:c3pobot/mongoapiclient",
+    "node-fetch": "^2.6.7",
+    "rediswrapper": "github:c3pobot/rediswrapper"
+  }
+}

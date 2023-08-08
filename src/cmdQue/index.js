@@ -3,14 +3,16 @@ const log = require('logger')
 
 const updateQue = require('./updateQue')
 const monitorQue = require('./monitorQue')
-const ShardQue = require('./que')
+const Que = require('./que')
+
 const POD_NAME = process.env.POD_NAME || 'poworker-0'
+
 const isOdd = (num)=>{
   return num % 2
 }
 const StartQues = async()=>{
   try{
-    ShardQue.start();
+    Que.start();
     MonitorQue()
   }catch(e){
     log.error(e);
@@ -31,7 +33,7 @@ const MonitorQue = ()=>{
       log.info('Starting que monitor..')
       monitorQue()
     }
-    if(num === 0) ShardQue.createListeners()
+    if(num === 0) Que.createListeners()
   }catch(e){
     log.error(e);
   }

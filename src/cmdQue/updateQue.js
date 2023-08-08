@@ -1,7 +1,8 @@
 'use strict'
 const log = require('logger')
 const mongo = require('mongoapiclient')
-const ShardQue = require('./que')
+
+const Que = require('./que')
 
 const syncShard = async()=>{
   try{
@@ -9,7 +10,7 @@ const syncShard = async()=>{
     for(let i in shards){
       const opts = {jobId: shards[i]._id}
       if(shards.length < 11) opts.delay = (11 - shards.length) * 1000
-      if(shards[i].status) await ShardQue.newJob({jobType: 'shard', data: {shardId: shards[i]._id}}, opts)
+      if(shards[i].status) await Que.newJob({jobType: 'shard', data: {shardId: shards[i]._id}}, opts)
     }
   }catch(e){
     log.error(e);
@@ -22,7 +23,7 @@ const syncArena = async()=>{
       for(let i in patreons){
         const opts = {jobId: patreons[i]._id}
         if(patreons.length < 11) opts.delay = (11 - patreons.length) * 1000
-        if(patreons[i].status) await ShardQue.newJob({jobType: 'arena', data: {dId: patreons[i]._id }}, opts)
+        if(patreons[i].status) await Que.newJob({jobType: 'arena', data: {dId: patreons[i]._id }}, opts)
       }
     }
   }catch(e){

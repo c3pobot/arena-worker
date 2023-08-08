@@ -1,11 +1,11 @@
 'use strict'
 const log = require('logger')
-const redis = require('helpers/redis')
-const LOCAL_QUE_KEY = process.env.LOCAL_QUE_KEY
+const redis = require('redisclient')
+
 const Que = require('./que')
-const Cmds = {}
-Cmds.shard = require('cmds/shard')
-Cmds.arena = require('cmds/arena')
+const Cmds = require('./cmds')
+
+const LOCAL_QUE_KEY = process.env.LOCAL_QUE_KEY
 
 module.exports = async()=>{
   try{
@@ -24,7 +24,7 @@ module.exports = async()=>{
           failed++
         }
         await redis.del(jobs[i])
-        if(jobs[i]?.jobId) await Que.removeJob(jobs[i].jobId)
+        if(jobs[i]?.id) await Que.removeJob(jobs[i].id)
       }
     }
     log.info('Processed '+count+' left over in job que. Deleted '+failed+' invalid')

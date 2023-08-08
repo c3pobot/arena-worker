@@ -1,8 +1,15 @@
 'use strict'
+const log = require('logger')
+const Queue = require('bull')
+
 const cmdProcessor = require('./cmdProcessor')
 const processLocalQue = require('./processLocalQue')
-const Queue = require('bull')
-const que = new Queue(process.env.CMD_QUE_NAME || 'shardQue', {
+
+
+const QUE_NAME = process.env.CMD_QUE_NAME || 'shardQue'
+const NUM_JOBS = +process.env.NUM_JOBS || 1
+
+const que = new Queue(QUE_NAME, {
   redis: {
     host: process.env.REDIS_SERVER,
     port: +process.env.REDIS_PORT,
@@ -22,9 +29,6 @@ module.exports.createListeners = ()=>{
   }catch(e){
     throw(e)
   }
-}
-module.exports.process = ()=>{
-  que.process('*', +process.env.NUM_JOBS || 1, cmdProcessor)
 }
 module.exports.newJob = async(data = {}, jobOpts = {})=>{
   try{
@@ -56,7 +60,7 @@ module.exports.start = async()=>{
   try{
     await processLocalQue()
     que.process('*', +process.env.NUM_JOBS || 1, cmdProcessor)
-    console.log('starting '+(process.env.CMD_QUE_NAME || 'shardQue')+' processing with '+(process.env.NUM_JOBS || 1)+' workers')
+    log.info(`Started processing ${QUE_NAME} with ${NUM_JOBS} workers`)
   }catch(e){
     throw(e)
   }

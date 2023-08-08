@@ -28,6 +28,6 @@
     "logger": "github:c3pobot/logger",
     "mongoapiclient": "github:c3pobot/mongoapiclient",
     "node-fetch": "^2.6.7",
-    "rediswrapper": "github:c3pobot/rediswrapper"
+    "redisclient": "github:c3pobot/redisclient"
   }
 }

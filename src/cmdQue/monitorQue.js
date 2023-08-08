@@ -1,8 +1,11 @@
 'use strict'
 const log = require('logger')
-const redis = require('helpers/redis')
-const queName = process.env.SHARD_QUE_NAME || 'shardQue'
-const ShardQue = require('./que')
+const redis = require('redisclient')
+
+const Que = require('./que')
+
+const QUE_NAME = process.env.SHARD_QUE_NAME || 'Que'
+
 let count = 0
 const removeJob = async(job)=>{
   try{
@@ -34,7 +37,7 @@ const removeJob = async(job)=>{
 const checkJobs = async(cmdQue)=>{
   try{
     if(cmdQue){
-      let jobs = await ShardQue.getJobs()
+      let jobs = await Que.getJobs()
       for(let i in jobs) await removeJob(jobs[i])
     }
   }catch(e){
@@ -44,7 +47,7 @@ const checkJobs = async(cmdQue)=>{
 }
 const forceClear = async()=>{
   try{
-    let jobs = await redis.keys('bull:'+queName+':*')
+    let jobs = await redis.keys('bull:'+QUE_NAME+':*')
     return
     if(jobs?.length > 0){
       for(let i in jobs){
@@ -65,8 +68,8 @@ const Sync = async() =>{
   try{
     await checkJobs()
     await forceClear()
-    let id = await redis.get('bull:'+queName+':id')
-    if(id && +id > 1000) redis.del('bull:'+queName+':id')
+    let id = await redis.get('bull:'+QUE_NAME+':id')
+    if(id && +id > 1000) redis.del('bull:'+QUE_NAME+':id')
 
     setTimeout(Sync, 5000)
   }catch(e){

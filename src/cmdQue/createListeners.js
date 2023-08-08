@@ -1,8 +1,10 @@
 const log = require('logger')
-const queName = process.env.CMD_QUE_NAME || 'shardQue'
+
+const QUE_NAME = process.env.CMD_QUE_NAME || 'shardQue'
+
 module.exports = (que)=>{
   try{
-    log.info('Creating '+queName+' que listeners...')
+    log.info(`Creating listers for ${QUE_NAME} command que...`)
     que.on('global:failed', function (jobId, err) {
 			log.error(`Job ${jobId} failed with reason: ${err}`)
 			// A job failed with reason `err`!

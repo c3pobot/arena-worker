@@ -17,7 +17,9 @@ const que = new Queue(QUE_NAME, {
   },
   defaultJobOptions: {
     removeOnComplete: true,
-    removeOnFail: true
+    removeOnFail: true,
+    timeout: 120000,
+    attempts: 1
   },
   settings: {
     maxStalledCount: 0
@@ -59,7 +61,7 @@ module.exports.removeJob = async(jobId)=>{
 module.exports.start = async()=>{
   try{
     await processLocalQue()
-    que.process('*', +process.env.NUM_JOBS || 1, cmdProcessor)
+    que.process('*', +NUM_JOBS, cmdProcessor)
     log.info(`Started processing ${QUE_NAME} with ${NUM_JOBS} workers`)
   }catch(e){
     throw(e)

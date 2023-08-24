@@ -47,6 +47,14 @@ module.exports.getJobs = async()=>{
     throw(e)
   }
 }
+module.exports.getJob = async(jobId)=>{
+  try{
+    if(!jobId) return
+    return await que.getJob(jobId)
+  }catch(e){
+    throw(e)
+  }
+}
 module.exports.removeJob = async(jobId)=>{
   try{
     let job = await que.getJob(jobId)

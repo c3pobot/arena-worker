@@ -1,5 +1,5 @@
 'use strict'
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 module.exports = async(rule = {}, obj, ranks = [], rank = 2)=>{
   try{
     if(rule.status && ranks.length > 0){

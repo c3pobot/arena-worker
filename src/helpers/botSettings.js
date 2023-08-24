@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 let botSettings = { map: {} }
 const update = async(notify = false)=>{
   try{
@@ -21,7 +21,7 @@ const update = async(notify = false)=>{
 }
 const checkMongo = ()=>{
   try{
-    let status = mongo.mongoStatus()
+    let status = mongo.status()
     if(status){
       update(true)
     }else{

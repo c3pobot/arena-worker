@@ -26,7 +26,7 @@
     "bull": "^4.10.4",
     "json-array-sorter": "0.0.5",
     "logger": "github:c3pobot/logger",
-    "mongoapiclient": "github:c3pobot/mongoapiclient",
+    "mongoclient": "github:c3pobot/mongoclient",
     "node-fetch": "^2.6.7",
     "redisclient": "github:c3pobot/redisclient"
   }

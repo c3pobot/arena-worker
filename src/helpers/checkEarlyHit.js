@@ -1,6 +1,6 @@
 'use strict'
 const timeTillPayout = require('./timeTillPayout')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 module.exports = async(rule = {}, obj, checkEnemy = 2, ranks = [], enemySkips = {})=>{
   try{
     if(rule.status && obj.swap){

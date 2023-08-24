@@ -2,7 +2,7 @@
 const log = require('logger')
 const SyncPlayers = require('./syncPlayers')
 const swgohClient = require('swgohClient')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 module.exports = async(data = {})=>{
   try{
     let patreon, players = [], guilds = [], users = []

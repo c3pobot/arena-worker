@@ -25,11 +25,11 @@ const MonitorQue = ()=>{
     if(array?.length > 1){
       num = +array.pop()
     }
-    if(!isOdd(num)){
+    if(!isOdd(num) || process.env.TEST_WORKER){
       log.info('Starting que update...')
       updateQue()
     }
-    if(isOdd(num)){
+    if(isOdd(num) || process.env.TEST_WORKER){
       log.info('Starting que monitor..')
       monitorQue()
     }

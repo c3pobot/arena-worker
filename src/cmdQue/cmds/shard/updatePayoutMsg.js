@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 const { DeepCopy, DiscordMsg, GetPayouts, GetShardName } = require('helpers')
 module.exports = async(shardId, shardCache = [])=>{
   try{

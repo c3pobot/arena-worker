@@ -1,5 +1,5 @@
 'use strict'
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 const sorter = require('json-array-sorter')
 const timeTillPayout = require('./timeTillPayout')
 module.exports = async(obj = {}, players = [], auto = false)=>{

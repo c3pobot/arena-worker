@@ -1,6 +1,6 @@
 'use strict'
 const { configMaps } = require('./configMaps')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 const sorter = require('json-array-sorter')
 const timeTillPayout = require('./timeTillPayout')
 const getLeadName = require('./getLeadName')

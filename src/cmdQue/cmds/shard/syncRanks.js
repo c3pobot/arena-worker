@@ -1,7 +1,7 @@
 'use strict'
 const {eachLimit} = require('async')
 const MAX_SYNC = process.env.MAX_SYNC || 50
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 
 const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, RankWatchNotify, SendAdminMsg, SendRankChange } = require('helpers')
 

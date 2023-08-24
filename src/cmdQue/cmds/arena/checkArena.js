@@ -1,6 +1,6 @@
 'use strict'
 const { eachLimit } = require('async')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 const SyncRank = require('./syncRank')
 const MAX_SYNC = process.env.MAX_SYNC || 20
 module.exports = async(players = [], chId = null, sId)=>{

@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 const discordMsg = require('./discordMsg')
 const getPOHour = require('./getPOHour')
 const getRotation = require('./getRotation')

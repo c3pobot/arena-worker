@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 const checkEarlyHit = require('./checkEarlyHit')
 const checkEnemyHit = require('./checkEnemyHit')
 const checkEnemySkip = require('./checkEnemySkip')
@@ -44,7 +44,14 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
           }else{
             let tempHits = ranks.filter(x=>x.oldRank > obj[i].rank && x.oldRank < obj[i].oldRank)
             tempHits = tempHits.filter(x=>((rules['top-rank'] ? rules['top-rank']:2) + obj[i].rank) >= x.oldRank)
-            if(rules['bottom-rank'] && (obj[i].oldRank -  rules['bottom-rank']) > 0) tempHits = tempHits.filter(x=>(obj[i].oldRank -  rules['bottom-rank']) > x.oldRank)
+            if(rules['bottom-rank'] && (obj[i].oldRank -  rules['bottom-rank']) > 0){
+              let bottomRank = rules['bottom-rank'], rankDiff = obj[i].oldRank - obj[i].rank
+              if(rules['bottom-rank'] + rules['top-rank'] >= rankDiff && rankDiff >= rules['bottom-rank'] && rankDiff > 0){
+                bottomRank =  rankDiff - rules['bottom-rank']
+              }
+              if(bottomRank >= 0) tempHits = tempHits.filter(x=>(obj[i].oldRank -  bottomRank) > x.oldRank)
+            }
+            console.log(tempHits)
             let earlyHit = 0
             let earlyHitMsg = await checkEarlyHit(rules.earlyHits, obj[i], (rules['top-rank'] || 2), tempHits, rules.enemySkips)
             if(earlyHitMsg && earlyHitMsg.color && rules.earlyHits && rules.earlyHits.chId){
@@ -84,7 +91,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
                         if(!tempEmbeds[rules.enemySkips.chId].content) tempEmbeds[rules.enemySkips.chId].content = ''
                         tempEmbeds[rules.enemySkips.chId].content += '<@'+discordId+'> '
                       }else{
-                        DiscordMsg({sId: shard.sId}, {method: 'sendDM', dId: discordId, msg: {embeds:[earlyHitMsg]}})
+                        discordMsg({sId: shard.sId}, {method: 'sendDM', dId: discordId, msg: {embeds:[earlyHitMsg]}})
                       }
                     }
                   }

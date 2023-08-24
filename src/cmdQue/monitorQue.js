@@ -1,12 +1,11 @@
 'use strict'
 const log = require('logger')
 const redis = require('redisclient')
-
 const Que = require('./que')
 
-const QUE_NAME = process.env.SHARD_QUE_NAME || 'Que'
+const QUE_NAME = process.env.SHARD_QUE_NAME || 'shardQue'
+const jobFilter = ['active', 'id', 'wait', 'stalled', 'stalled-check', 'delay', 'delayed']
 
-let count = 0
 const removeJob = async(job)=>{
   try{
     if(job){
@@ -45,20 +44,31 @@ const checkJobs = async(cmdQue)=>{
     log.error(e);
   }
 }
+const checkJob = async(jobId)=>{
+  try{
+    let job = await Que.getJob(jobId)
+    if(job?.failedReason){
+      log.info(`Removing ${jobId} reason ${job.failedReason}...`)
+      job.moveToFailed(null, true, true)
+      return true
+    }
+  }catch(e){
+    log.error(jobId)
+    log.error(e)
+  }
+}
 const forceClear = async()=>{
   try{
+    let count = 0
     let jobs = await redis.keys('bull:'+QUE_NAME+':*')
-    return
-    if(jobs?.length > 0){
-      for(let i in jobs){
-        if(!jobs[i].includes('-') || jobs[i].includes('stalled')) continue
-        let job = await redis.hget(jobs[i])
-        if(job?.failedReason){
-          log.log('Force deleting failed job ...'+jobs[i])
-          await redis.del(jobs[i])
-        }
-      }
+    if(!jobs || jobs.length === 0) return
+    for(let i in jobs){
+      let jobId = jobs[i].replace('bull:'+QUE_NAME+':','')?.split(':')[0]
+      if(jobFilter.filter(x=>x === jobId).length > 0) continue
+      let status = await checkJob(jobId)
+      if(status) count++
     }
+    if(count) log.info(`Cleared ${count} stuck jobs...`)
   }catch(e){
     log.error('Error with forceClear...')
     log.error(e);
@@ -66,8 +76,9 @@ const forceClear = async()=>{
 }
 const Sync = async() =>{
   try{
-    await checkJobs()
     await forceClear()
+    await checkJobs()
+
     let id = await redis.get('bull:'+QUE_NAME+':id')
     if(id && +id > 1000) redis.del('bull:'+QUE_NAME+':id')
 

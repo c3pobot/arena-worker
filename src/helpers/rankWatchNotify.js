@@ -1,9 +1,9 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoapiclient')
+const mongo = require('mongoclient')
 const discordMsg = require('./discordMsg')
 const getShardName = require('./getShardName')
-
+const getDiscordId = require('./getDiscordId')
 module.exports = async(obj = [])=>{
   try{
     if(obj.length > 0){

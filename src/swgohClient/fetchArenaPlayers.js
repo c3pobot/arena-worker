@@ -10,21 +10,10 @@ const getArenaPlayer = async(payload = {})=>{
     throw(e);
   }
 }
-module.exports = async(opts = { players: []})=>{
-  try{
-    let array = [], res = [], i = opts.players.length
-    const getPlayer = async(payload = {})=>{
-      try{
-        let player = await getArenaPlayer(payload)
-        if(player?.allyCode) res.push(player)
-      }catch(e){
-        throw(e)
-      }
-    }
-    while(i--) array.push(getPlayer({allyCode: opts.players[i]?.allyCode?.toString(), playerId: opts.players[i]?.playerId}))
-    await Promise.all(array)
-    return res
-  }catch(e){
-    throw(e);
-  }
+module.exports = async(players = [])=>{
+  if(!players || players?.length == 0) return
+  let array = [], i = players.length
+  while(i--) array.push(getArenaPlayer({ allyCode: players[i]?.allyCode?.toString(), playerId: players[i]?.playerId }))
+  let res = await Promise.allSettled(array)
+  return res?.filter(x=>x?.value?.allyCode)?.map(x=>x?.value)
 }

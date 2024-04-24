@@ -1,30 +1,17 @@
 'use strict'
 const log = require('logger')
 const mongo = require('mongoclient')
-const redis = require('redisclient')
 
 const swgohClient = require('./swgohClient')
 const { botSettings } = require('./helpers/botSettings')
 const { configMaps } = require('./helpers/configMaps')
+const POD_NAME = process.env.POD_NAME || 'po-worker'
 
 let CmdQue = require('./cmdQue')
 
 let logLevel = process.env.LOG_LEVEL || log.Level.INFO;
 log.setLevel(logLevel);
 
-const CheckRedis = ()=>{
-  try{
-    let status = redis.status()
-    if(status){
-      CheckMongo()
-      return
-    }
-    setTimeout(CheckRedis, 5000)
-  }catch(e){
-    log.error(e)
-    setTimeout(CheckRedis, 5000)
-  }
-}
 const CheckMongo = ()=>{
   try{
     let status = mongo.status()
@@ -43,7 +30,8 @@ const CheckAPIReady = async()=>{
     let obj = await swgohClient.metadata()
     if(obj?.latestGamedataVersion){
       log.info('API is ready ..')
-      CmdQue.start()
+      CmdQue.startConsumer()
+      if(process.env.POD_NAME?.toString().endsWith("0")) require('./dataSync')
       return
     }
     log.info('API is not ready. Will try again in 5 seconds')
@@ -53,4 +41,5 @@ const CheckAPIReady = async()=>{
     setTimeout(CheckAPIReady, 5000)
   }
 }
-CheckRedis()
+
+CheckMongo()

@@ -1,18 +1,20 @@
 'use strict'
-const path = require('path')
-const bottleneck = require('bottleneck')
-const fetch = require('./fetch')
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000'
-let retryCount = 11
-const limiter = new bottleneck({
-  minTime: 20,
-  maxConcurrent: 10
-})
+const log = require('logger')
+const fetch = require('./fetch');
+const GAME_CLIENT_URL = process.env.GAME_CLIENT_URL
+const reAuthCodes = {
+  4: 'SESSIONEXPIRED',
+  5: 'AUTHFAILED',
+  11: 'UNAUTHORIZED',
+  51: 'FORCECLIENTRESTART',
+  55: 'PRIORITYFORCECLIENTRESTART'
+}
+let retryCount = +process.env.CLIENT_RETRY_COUNT || 6
 
 const requestWithRetry = async(uri, opts = {}, count = 0)=>{
   try{
     let res = await fetch(uri, opts)
-    if(res?.error === 'FetchError' || res?.body?.code === 6 || (res?.status === 400 && res?.body?.message)){
+    if(res?.error === 'FetchError'){
       if(count < retryCount){
         count++
         return await requestWithRetry(uri, opts, count)
@@ -20,20 +22,38 @@ const requestWithRetry = async(uri, opts = {}, count = 0)=>{
         throw(`tried request ${count} time(s) and errored with ${res.error} : ${res.message}`)
       }
     }
+    if(res?.body?.code === 6){
+      if(count < retryCount){
+        count++
+        return await requestWithRetry(uri, opts, count)
+      }else{
+        throw(`tried request ${count} time(s) and errored with ${res?.body?.code} : ${res?.body?.message}`)
+      }
+    }
+    if(res?.status === 400 && res?.body?.message && !reAuthCodes[res?.body?.code]){
+      if(count < retryCount){
+        count++
+        return await requestWithRetry(uri, opts, count)
+      }else{
+        throw(`tried request ${count} time(s) and errored with ${res?.body?.code} : ${res?.body?.message}`)
+      }
+    }
     return res
   }catch(e){
     throw(e)
   }
 }
-module.exports = async(uri, payload)=>{
+
+module.exports = async(uri, payload = {})=>{
   try{
-    let opts = { headers: { "Content-Type": "application/json" }, timeout: 30000, method: 'POST', compress: true, body: JSON.stringify({ payload: payload}) }
-    let res = await limiter.schedule(()=>requestWithRetry(path.join(CLIENT_URL, uri), opts))
-    //console.log(res?.body)
-    if(res?.body?.code !== 5 && res?.body?.message) throw(uri+' : Code : '+res.body.code+' : Msg : '+res.body.message)
+    let opts = { headers: { 'Content-Type': 'application/json'}, timeout: 30000, compress: true, method: 'POST' }
+    let body = { payload: payload }
+    opts.body = JSON.stringify(body)
+    let res = await requestWithRetry(`${GAME_CLIENT_URL}/${uri}`, opts)
+    if(res?.body?.message && res?.body?.code !== 5) log.error(uri+' : Code : '+res.body.code+' : Msg : '+res.body.message)
     if(res?.body) return res.body
-    if(res?.error) throw(uri+' : '+res.error+' '+res.type)
   }catch(e){
-    throw(e);
+    log.error(uri);
+    log.error(e);
   }
 }

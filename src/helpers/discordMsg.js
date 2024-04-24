@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const botRequest = require('botrequest')
+const botRequest = require('./botrequest')
 module.exports = async(opts = {}, data = {})=>{
   try{
     let payload = {...opts,...data}

@@ -1,41 +1,37 @@
 'use strict'
 const log = require('logger')
-
-const updateQue = require('./updateQue')
-const monitorQue = require('./monitorQue')
-const Que = require('./que')
-
-const POD_NAME = process.env.POD_NAME || 'poworker-0'
-
-const isOdd = (num)=>{
-  return num % 2
+const rabbitmq = require('./rabbitmq')
+const cmdProcessor = require('./cmdProcessor')
+let queName = process.env.WORKER_QUE_PREFIX || 'worker', consumer, producer, producerReady
+queName += '.arena'
+const POD_NAME = process.env.POD_NAME || 'po-worker'
+const clearQue = async()=>{
+  return await rabbitmq.queueDelete({ queue: queName })
 }
-const StartQues = async()=>{
-  try{
-    Que.start();
-    MonitorQue()
-  }catch(e){
-    log.error(e);
-    setTimeout(StartQues, 5000)
-  }
+module.exports.startConsumer = async()=>{
+  if(consumer) await consumer.close()
+  consumer = rabbitmq.createConsumer({ concurrency: 1, qos: { prefetchCount: 1 }, queue: queName, queueOptions: { durable: true, arguments: { 'x-queue-type': 'quorum' } } }, cmdProcessor)
+  consumer.on('error', (err)=>{
+    if(err?.code){
+      log.error(err.code)
+      log.error(err.message)
+      return
+    }
+    log.error(err)
+  })
+  log.info(`rabbitmq consumer started on ${POD_NAME}`)
+  return true
 }
-const MonitorQue = ()=>{
-  try{
-    let num = POD_NAME.slice(-1), array = POD_NAME.split('-')
-    if(array?.length > 1){
-      num = +array.pop()
-    }
-    if(!isOdd(num) || process.env.TEST_WORKER){
-      log.info('Starting que update...')
-      updateQue()
-    }
-    if(isOdd(num) || process.env.TEST_WORKER){
-      log.info('Starting que monitor..')
-      monitorQue()
-    }
-    if(num === 0) Que.createListeners()
-  }catch(e){
-    log.error(e);
-  }
+module.exports.startProducer = async()=>{
+  let status await clearQue()
+  log.info(status)
+  producer = rabbitmq.createPublisher({ confirm: true, queues: [{ queue: queName, durable: true, arguments: {'x-queue-type': 'quorum'} }]})
+  log.info(`rabbitmq producer started on ${POD_NAME}`)
+  producerReady = true
+  return true
 }
-module.exports.start = StartQues
+module.exports.send = async(payload = {})=>{
+  if(!producerReady) return
+  await producer.send({ routingKey: queName }, payload })
+  return true
+}

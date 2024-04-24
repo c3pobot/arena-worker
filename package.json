@@ -21,13 +21,11 @@
   "homepage": "https://gitlab.com/c3po-shard/poworker#readme",
   "dependencies": {
     "async": "^3.2.0",
-    "botrequest": "github:c3pobot/botrequest",
     "bottleneck": "^2.19.5",
-    "bull": "^4.10.4",
     "json-array-sorter": "0.0.5",
     "logger": "github:c3pobot/logger",
     "mongoclient": "github:c3pobot/mongoclient",
-    "node-fetch": "^2.6.7",
-    "redisclient": "github:c3pobot/redisclient"
+    "mqtt": "^5.5.3",
+    "node-fetch": "^2.6.7"
   }
 }

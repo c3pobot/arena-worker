@@ -1,12 +1,8 @@
 'use strict'
 const mongo = require('mongoclient')
 module.exports = async(obj = {})=>{
-  try{
-    let discordId = obj.dId, dObj
-    if(!discordId && obj.allyCode) dObj = (await mongo.find('discordId', {'allyCodes.allyCode': +obj.allyCode}))[0]
-    if(dObj) discordId = dObj._id
-    return discordId
-  }catch(e){
-    throw(e)
-  }
+  if(obj.dId) return obj.dId
+  let dObj
+  if(obj.allyCode) dObj = (await mongo.find('discordId', {'allyCodes.allyCode': +obj.allyCode}))[0]
+  if(dObj?._id) return dObj?._id
 }

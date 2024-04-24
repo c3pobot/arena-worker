@@ -2,6 +2,7 @@
 const log = require('logger')
 const discordMsg = require('./discordMsg')
 const timeTillPayout = require('./timeTillPayout')
+
 module.exports = async(data = {}, shard = {})=>{
   try{
     let content
@@ -10,8 +11,8 @@ module.exports = async(data = {}, shard = {})=>{
       content += 'Player name change '+(data.emoji ? data.emoji+' ':'')+data.oldName+' -> '+(data.emoji ? data.emoji+' ':'')+data.newName+'\n'
     }
     if(data.oldOffSet != data.newOffSet){
-      const oldTimeTillPO = timeTillPayout(data.oldOffSet, shard.type)
-      const newTimeTillPO = timeTillPayout(data.newOffSet, shard.type)
+      let oldTimeTillPO = timeTillPayout(data.oldOffSet, shard.type)
+      let newTimeTillPO = timeTillPayout(data.newOffSet, shard.type)
       if(!content) content = ''
       content += 'Player '+(data.emoji ? data.emoji+' ':'')+data.newName
       if(oldTimeTillPO && newTimeTillPO){

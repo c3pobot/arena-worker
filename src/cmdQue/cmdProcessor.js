@@ -1,31 +1,13 @@
 'use strict'
 const log = require('logger')
-const redis = require('redisclient')
-
-const Cmds = require('./cmds')
-
-const LOCAL_QUE_KEY = process.env.LOCAL_QUE_KEY
-
-
-const processJob = async(job = {})=>{
+const Cmds = require('src/cmds')
+module.exports = async(obj = {})=>{
   try{
-    let res
-    if(redis && process.env.LOCAL_QUE_KEY && job?.id) await redis.setTTL(process.env.LOCAL_QUE_KEY+'-'+job.id, job)
-    if(Cmds[job?.jobType]) res = await Cmds[job.jobType](job.data);
-    if(redis && process.env.LOCAL_QUE_KEY && job?.id) await redis.del(process.env.LOCAL_QUE_KEY+'-'+job.id)
-    return res;
-  }catch(e){
-    throw(e)
-  }
-}
-module.exports = async(job)=>{
-  try{
-    let obj = job?.data
-    if(!obj) return
-    if(job?.opts?.jobId) obj.id = job.opts.jobId
-    if(job?.timestamp) obj.timestamp = job.timestamp
-    return await processJob(obj)
+    if(!obj?.body? || !obj?.body?.name) return
+    if(Cmds[obj.body.data.name]) await Cmds[obj.body.name](obj.body)
+    return 1
   }catch(e){
     log.error(e)
+    return 1
   }
 }

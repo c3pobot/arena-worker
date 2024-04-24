@@ -1,21 +1,13 @@
 'use strict'
-const {eachLimit} = require('async')
-const MAX_SYNC = process.env.MAX_SYNC || 50
 const mongo = require('mongoclient')
 
 const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, RankWatchNotify, SendAdminMsg, SendRankChange } = require('helpers')
 
 const SyncPlayer = async(sObj, shardPlayers = [], aObj, players = [], oldData = null, shard, watchObj, rankObj)=>{
   if(sObj && aObj && shard.type && shard.alt && shard._id){
-
-    let adminMsg = ''
-    let pId = sObj.allyCode+'-'+shard._id
-    if(!sObj.type) mongo.set('shardPlayers', {_id: pId}, {type:shard.type})
-    let dataChange = 0;
-    let currentMainRank = (+aObj.arena[shard.type].rank || 0)
-    let currentAltRank = (+aObj.arena[shard.alt].rank || 0)
-    let poHourMain = GetPOHour(aObj.poOffSet, shard.type)
-    let poHourAlt = GetPOHour(aObj.poOffSet, shard.alt)
+    let adminMsg = '', pId = sObj.allyCode+'-'+shard._id, dataChange = 0
+    if(!sObj.type) mongo.set('shardPlayers', {_id: pId}, { type:shard.type })
+    let currentMainRank = (+aObj.arena[shard.type].rank || 0), currentAltRank = (+aObj.arena[shard.alt].rank || 0), poHourMain = GetPOHour(aObj.poOffSet, shard.type), poHourAlt = GetPOHour(aObj.poOffSet, shard.alt);
     if(!oldData){
       oldData = {
         allyCode: +aObj.allyCode,
@@ -225,18 +217,16 @@ const SyncPlayer = async(sObj, shardPlayers = [], aObj, players = [], oldData = 
     })
   }
 }
-module.exports = async(shardPlayers, playersFormated, shard, watchObj)=>{
+module.exports = async(shardPlayers = [], playersFormated = [], shard = {}, watchObj)=>{
   let rankObj = {po: {main: [], alt: []}, start: {main: [], alt: []}, shard: [], watch: [], enemyWatch: [], rules: []}
   let oldPlayers = await mongo.find('shardRankCache', {shardId: shard._id})
-  if(oldPlayers){
-    await eachLimit(playersFormated, MAX_SYNC, async(p)=>{
-      let sObj = shardPlayers.find(x=>x.playerId == p.playerId)
-      if(sObj?.allyCode){
-        let oldData = oldPlayers.find(x=>x.playerId == p.playerId)
-        let playerData = await SyncPlayer(sObj, shardPlayers, p, playersFormated, oldData, shard, watchObj, rankObj)
-      }
-
-    })
+  if(!oldPlayers) return rankObj
+  let array = [], i = playersFormated.length
+  while(i--){
+    let sObj = shardPlayers.find(x=>x.playerId == playersFormated[i].playerId)
+    let oldData = oldPlayers.find(x=>x.playerId == playersFormated[i].playerId)
+    if(sObj?.allyCode) array.push(SyncPlayer(sObj, shardPlayers, playersFormated[i], oldData, shard, watchObj, rankObj))
   }
+  await Promise.allSettled(array)
   return rankObj
 }

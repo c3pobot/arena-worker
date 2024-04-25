@@ -1,37 +1,49 @@
 'use strict'
 const log = require('logger')
-const rabbitmq = require('./rabbitmq')
+const rabbitmq = require('src/helpers/rabbitmq')
 const cmdProcessor = require('./cmdProcessor')
-let queName = process.env.WORKER_QUE_PREFIX || 'worker', consumer, producer, producerReady
-queName += '.arena'
-const POD_NAME = process.env.POD_NAME || 'po-worker'
+let QUE_NAME = process.env.WORKER_QUE_NAME_SPACE || 'default', POD_NAME = process.env.POD_NAME || 'po-worker', consumer, publisher, publisherReady
+QUE_NAME += `.worker.arena`
+
 const clearQue = async()=>{
-  return await rabbitmq.queueDelete({ queue: queName })
+  return await rabbitmq.queueDelete(QUE_NAME)
 }
-module.exports.startConsumer = async()=>{
+const processCmd = async(obj = {})=>{
+  try{
+    await cmdProcessor(obj)
+    return 1
+  }catch(e){
+    log.error(e)
+    return 1
+  }
+}
+const startConsumer = async()=>{
   if(consumer) await consumer.close()
-  consumer = rabbitmq.createConsumer({ concurrency: 1, qos: { prefetchCount: 1 }, queue: queName, queueOptions: { durable: true, arguments: { 'x-queue-type': 'quorum' } } }, cmdProcessor)
+  consumer = rabbitmq.createConsumer({ consumerTag: POD_NAME, concurrency: 1, qos: { prefetchCount: 1 }, queue: QUE_NAME, queueOptions: { durable: true, arguments: { 'x-queue-type': 'quorum', 'x-message-ttl': 600000  } } }, processCmd)
   consumer.on('error', (err)=>{
-    if(err?.code){
-      log.error(err.code)
-      log.error(err.message)
-      return
-    }
-    log.error(err)
+    log.info(err)
   })
-  log.info(`rabbitmq consumer started on ${POD_NAME}`)
+  consumer.on('ready', ()=>{
+    log.info(`${POD_NAME} arena consumer created...`)
+  })
   return true
 }
+module.exports.startConsumer = startConsumer
 module.exports.startProducer = async()=>{
-  let status await clearQue()
+  let status = await clearQue()
   log.info(status)
-  producer = rabbitmq.createPublisher({ confirm: true, queues: [{ queue: queName, durable: true, arguments: {'x-queue-type': 'quorum'} }]})
-  log.info(`rabbitmq producer started on ${POD_NAME}`)
-  producerReady = true
+  publisher = rabbitmq.createPublisher({ confirm: true, queues: [{ queue: QUE_NAME, durable: true, arguments: { 'x-queue-type': 'quorum', 'x-message-ttl': 600000 } }]})
+  log.info(`${POD_NAME} arena publisher started...`)
+  publisherReady = true
   return true
 }
 module.exports.send = async(payload = {})=>{
-  if(!producerReady) return
-  await producer.send({ routingKey: queName }, payload })
+  if(!publisherReady) return
+  await publisher.send(QUE_NAME, payload )
   return true
+}
+module.exports.restartConsumer = async(data)=>{
+  if(!data || data?.set !== 'po-worker' || data?.cmd !== 'restart') return
+  log.info(`${POD_NAME} received a consumer restart cmd...`)
+  startConsumer()
 }

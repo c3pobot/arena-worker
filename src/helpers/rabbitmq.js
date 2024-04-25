@@ -11,16 +11,11 @@ const connectOptions = {
 }
 const client = new rabbitmq.Connection(connectOptions)
 client.on('error', (err)=>{
-  log.error(`Producer on ${POD_NAME} Error`)
-  if(err?.code){
-    log.error(err.code)
-    log.error(err.message)
-    return
-  }
+  log.error(`${POD_NAME} rabbitmq error...`)
   log.error(err)
 })
 client.on('connection', ()=>{
-  clientReady = true
-  log.info(`messagebus client on ${POD_NAME} connection successfully (re)established`)
+  log.info(`${POD_NAME} rabbitmq client connection successfully (re)established`)
 })
+
 module.exports = client

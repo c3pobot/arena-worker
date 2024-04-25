@@ -2,7 +2,8 @@
 const log = require('logger')
 const fetch = require('./fetch')
 const { getPodName, getNumShards } = require('./botInfo')
-let BOT_SVC = process.env.BOT_SVC || 'bot', BOT_SVC_PORT = process.env.BOT_SVC_PORT || 3000, BOT_SET_NAME = process.env.BOT_SET_NAME, BOT_NAMESPACE = process.env.BOT_NAME
+let BOT_SVC = process.env.BOT_SVC || 'bot', BOT_SVC_PORT = process.env.BOT_SVC_PORT || 3000, BOT_SET_NAME = process.env.BOT_SET_NAME, BOT_NAMESPACE = process.env.BOT_NAMESPACE || 'default'
+const retryCount = 7
 
 const requestWithRetry = async(uri, opts = {}, count = 0)=>{
   try{
@@ -21,10 +22,10 @@ const requestWithRetry = async(uri, opts = {}, count = 0)=>{
   }
 }
 
-let singleBotRequest = async(cmd, podName, opt = {})=>{
+let singleBotRequest = async(cmd, podName, opts = {})=>{
   let payload = { method: 'POST', timeout: 60000, compress: true, headers: {"Content-Type": "application/json"} }
   payload.body = JSON.stringify({ ...opts, ...{ cmd: cmd, podName: `${podName}` } })
-  let obj = await requestWithRetry(`http://${podName}.${BOT_SVC}.${BOT_NAMESPACE}:${BOT_PORT}/cmd`, payload)
+  let obj = await requestWithRetry(`http://${podName}.${BOT_SVC}.${BOT_NAMESPACE}:${BOT_SVC_PORT}/cmd`, payload)
   return obj?.body
 }
 const allBotRequest = async(cmd, opts = {})=>{

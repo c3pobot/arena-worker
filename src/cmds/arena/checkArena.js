@@ -13,7 +13,7 @@ module.exports = async(players = [], chId = null, sId)=>{
   while(i--){
     let oldData = rankCache.find(x=>x._id == players[i].playerId)
     let pObj = pSettings.find(x=>x._id == players[i].playerId)
-    array.push(syncRank(players[i], oldData, pObj, chId, sId))
+    array.push(SyncRank(players[i], oldData, pObj, chId, sId))
   }
   await Promise.allSettled(array)
 }

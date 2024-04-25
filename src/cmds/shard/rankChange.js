@@ -1,3 +1,4 @@
+'use strict'
 module.exports = async(oldData, sObj, shard, type, poHour)=>{
   let tempObj = {
     name: oldData.name,

@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const SyncPlayers = require('./syncPlayers')
+const syncPlayers = require('./syncPlayers')
 const swgohClient = require('src/swgohClient')
 const mongo = require('mongoclient')
 module.exports = async(data = {})=>{
@@ -14,8 +14,8 @@ module.exports = async(data = {})=>{
     for(let i in guilds){
       //console.log('starting sync for guild '+guilds[i].id)
       let guild = await swgohClient.queryGuild(guilds[i].id)
-      if(guild?.member?.length > 0) await SyncPlayers(guild.member, guilds[i].chId, guilds[i].sId)
+      if(guild?.member?.length > 0) await syncPlayers(guild.member, guilds[i].chId, guilds[i].sId)
     }
   }
-  if(users?.length > 0) await SyncPlayers(users, patreon.logChannel, patreon.sId)
+  if(users?.length > 0) await syncPlayers(users, patreon.logChannel, patreon.sId)
 }

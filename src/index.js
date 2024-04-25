@@ -1,45 +1,75 @@
 'use strict'
 const log = require('logger')
+//log.setLevel('debug');
 const mongo = require('mongoclient')
 
+const rabbitmq = require('./helpers/rabbitmq')
 const swgohClient = require('./swgohClient')
+const updateDataList = require('./helpers/updateDataList')
+const dataSync = require('./dataSync')
+require('./exchanges')
 const { botSettings } = require('./helpers/botSettings')
-const { configMaps } = require('./helpers/configMaps')
+const { dataList } = require('./helpers/dataList')
+
 const POD_NAME = process.env.POD_NAME || 'po-worker'
 
-let CmdQue = require('./cmdQue')
+let cmdQue = require('./cmdQue')
 
-let logLevel = process.env.LOG_LEVEL || log.Level.INFO;
-log.setLevel(logLevel);
-
-const CheckMongo = ()=>{
+const checkRabbitmq = ()=>{
+  try{
+    if(rabbitmq.ready){
+      checkMongo()
+      return
+    }
+    setTimeout(checkRabbitmq, 5000)
+  }catch(e){
+    log.error(e)
+    setTimeout(checkRabbitmq, 5000)
+  }
+}
+const checkMongo = ()=>{
   try{
     let status = mongo.status()
     if(status){
-      CheckAPIReady()
+      checkAPIReady()
       return
     }
-    setTimeout(CheckMongo, 5000)
+    setTimeout(checkMongo, 5000)
   }catch(e){
     log.error(e)
-    setTimeout(CheckMongo, 5000)
+    setTimeout(checkMongo, 5000)
   }
 }
-const CheckAPIReady = async()=>{
+const checkAPIReady = async()=>{
   try{
     let obj = await swgohClient.metadata()
     if(obj?.latestGamedataVersion){
       log.info('API is ready ..')
-      CmdQue.startConsumer()
-      if(process.env.POD_NAME?.toString().endsWith("0")) require('./dataSync')
+      if(POD_NAME?.toString().endsWith("0")){
+        checkDataSync()
+        return
+      }
+      await cmdQue.startConsumer()
       return
     }
     log.info('API is not ready. Will try again in 5 seconds')
-    setTimeout(CheckAPIReady, 5000)
+    setTimeout(checkAPIReady, 5000)
   }catch(e){
     log.error(e)
-    setTimeout(CheckAPIReady, 5000)
+    setTimeout(checkAPIReady, 5000)
   }
 }
-
-CheckMongo()
+const checkDataSync = async()=>{
+  try{
+    let status = await dataSync.start()
+    if(status){
+      await cmdQue.startConsumer()
+      return
+    }
+    setTimeout(checkDataSync, 5000)
+  }catch(e){
+    log.error(e)
+    setTimeout(checkDataSync, 5000)
+  }
+}
+checkRabbitmq()

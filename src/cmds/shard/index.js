@@ -6,7 +6,7 @@ const updateRankMsg = require('./updateRankMsg')
 const updatePayoutMsg = require('./updatePayoutMsg')
 const swgohClient = require('src/swgohClient')
 
-const { CheckRules, SendEnemyWatchMsg, SendWatchMsg, SendPayoutMsg, SendStartMsg } = require('helpers')
+const { CheckRules, SendEnemyWatchMsg, SendWatchMsg, SendPayoutMsg, SendStartMsg } = require('src/helpers')
 
 module.exports = async(data = {})=>{
   //data format { name: 'shard', shardId: shardId }

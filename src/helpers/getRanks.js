@@ -1,5 +1,5 @@
 'use strict'
-const { configMaps } = require('./configMaps')
+const { dataList } = require('./dataList')
 const mongo = require('mongoclient')
 const sorter = require('json-array-sorter')
 const timeTillPayout = require('./timeTillPayout')
@@ -24,8 +24,8 @@ module.exports = async(obj, players = [], auto = false) => {
         if(obj.rankLeader && players[p].arena && players[p].arena[obj.type] && players[p].arena[obj.type].squad && players[p].arena[obj.type].squad.length > 0){
           tempObj.value += '**'+players[p].name+'**'
           let lead = players[p].arena[obj.type].squad.find(x=>x.squadUnitType == (obj.type == 'char' ? 2:3))
-          if(lead?.unitDefId && configMaps.unitList[lead.unitDefId.split(':')[0]]){
-            let uInfo =  configMaps.unitList[lead.unitDefId.split(':')[0]]
+          if(lead?.unitDefId && dataList.unitList[lead.unitDefId.split(':')[0]]){
+            let uInfo =  dataList.unitList[lead.unitDefId.split(':')[0]]
             if(uInfo){
               let leadName = getLeadName(uInfo, obj.alias, obj.truncateRankLeader)
               tempObj.value += ' ('+leadName+')'

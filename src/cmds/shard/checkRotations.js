@@ -1,6 +1,6 @@
 'use strict'
 const mongo = require('mongoclient')
-const { PayoutRotations } = require('helpers')
+const { PayoutRotations } = require('src/helpers')
 module.exports = async(shard)=>{
   try{
     let obj = (await mongo.find('shardRotations', {_id: shard._id}, {_id: 0, TTL: 0}))[0]

@@ -1,7 +1,7 @@
 'use strict'
 const log = require('logger')
 const mongo = require('mongoclient')
-const { DiscordMsg, GetPayouts, GetShardName } = require('helpers')
+const { DiscordMsg, GetPayouts, GetShardName } = require('src/helpers')
 
 module.exports = async(shardId, shardCache = [])=>{
   try{

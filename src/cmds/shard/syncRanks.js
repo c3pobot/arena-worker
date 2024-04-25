@@ -1,9 +1,10 @@
 'use strict'
 const mongo = require('mongoclient')
 
-const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, RankWatchNotify, SendAdminMsg, SendRankChange } = require('helpers')
+const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, RankWatchNotify, SendAdminMsg, SendRankChange } = require('src/helpers')
 
 const SyncPlayer = async(sObj, shardPlayers = [], aObj, players = [], oldData = null, shard, watchObj, rankObj)=>{
+
   if(sObj && aObj && shard.type && shard.alt && shard._id){
     let adminMsg = '', pId = sObj.allyCode+'-'+shard._id, dataChange = 0
     if(!sObj.type) mongo.set('shardPlayers', {_id: pId}, { type:shard.type })
@@ -221,12 +222,13 @@ module.exports = async(shardPlayers = [], playersFormated = [], shard = {}, watc
   let rankObj = {po: {main: [], alt: []}, start: {main: [], alt: []}, shard: [], watch: [], enemyWatch: [], rules: []}
   let oldPlayers = await mongo.find('shardRankCache', {shardId: shard._id})
   if(!oldPlayers) return rankObj
+
   let array = [], i = playersFormated.length
   while(i--){
     let sObj = shardPlayers.find(x=>x.playerId == playersFormated[i].playerId)
     let oldData = oldPlayers.find(x=>x.playerId == playersFormated[i].playerId)
-    if(sObj?.allyCode) array.push(SyncPlayer(sObj, shardPlayers, playersFormated[i], oldData, shard, watchObj, rankObj))
+    if(sObj?.allyCode) array.push(SyncPlayer(sObj, shardPlayers, playersFormated[i], playersFormated, oldData, shard, watchObj, rankObj))
   }
-  await Promise.allSettled(array)
+  let res = await Promise.allSettled(array)
   return rankObj
 }

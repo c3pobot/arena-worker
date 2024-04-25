@@ -1,36 +1,27 @@
-'use strict'
 const log = require('logger')
 const mongo = require('mongoclient')
-let botSettings = { map: {} }
-const update = async(notify = false)=>{
+let botSettings = {}, mongoReady = mongo.status(), notify = true
+const update = async()=>{
   try{
-    let checkTime = 60, notifyUpdate = false
-    let obj = (await mongo.find('botSettings', {_id: "1"}))[0]
-    if(obj){
-      botSettings.map = obj
-      if(notify) log.debug('botSettings updated...')
-    }else{
-      if(notify) notifyUpdate = true
-      checkTime = 5
+    let syncTime = 5
+    if(!mongoReady) mongoReady = mongo.status()
+    if(mongoReady){
+      let data = (await mongo.find('botSettings', {_id: '1'}, {_id: 0, TTL: 0}))[0]
+      if(data){
+        for(let i in data) botSettings[i] = data[i]
+        botSettings.ready = true
+        if(notify){
+          notify = false
+          log.info(`updated botSettings...`)
+        }
+        syncTime = 60
+      }
     }
-    setTimeout(()=>update(notifyUpdate), checkTime * 1000)
-  }catch(e){
-    log.error(e);
-    setTimeout(()=>update(notify), 5000)
-  }
-}
-const checkMongo = ()=>{
-  try{
-    let status = mongo.status()
-    if(status){
-      update(true)
-    }else{
-      setTimeout(checkMongo, 5000)
-    }
+    setTimeout(update, syncTime * 1000)
   }catch(e){
     log.error(e)
-    setTimeout(checkMongo, 5000)
+    setTimeout(update, 5000)
   }
 }
-checkMongo()
+update()
 module.exports = { botSettings }

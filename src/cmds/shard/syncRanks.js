@@ -179,7 +179,7 @@ const SyncPlayer = async(sObj, shardPlayers = [], aObj, players = [], oldData = 
       }
       if(watchObj && watchObj.filter(x => x.rank == oldRankMain).length > 0){
         if(watchObj.filter(x => x.rank == oldRankMain && x.method != 'dm').length > 0) mainMsg.rankWatch = watchObj.filter(x => x.rank == oldRankMain && x.method != 'dm')
-        if(watchObj.filter(x => x.rank == oldRankMain && x.method == 'dm').length > 0) RankWatchNotify(watchObj.filter(x => x.rank == oldRankMain && x.method == 'dm'))
+        if(watchObj.filter(x => x.rank == oldRankMain && x.method == 'dm').length > 0) RankWatchNotify(watchObj.filter(x => x.rank == oldRankMain && x.method == 'dm'), shard)
       }
       if(sObj.notify.status > 0 && sObj.notify.startTime > poHourMain){
         mainMsg.notify = 1

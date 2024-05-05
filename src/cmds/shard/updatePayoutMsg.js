@@ -1,7 +1,7 @@
 'use strict'
 const log = require('logger')
 const mongo = require('mongoclient')
-const { DiscordMsg, GetPayouts, GetShardName } = require('src/helpers')
+const { botRequest, GetPayouts, GetShardName } = require('src/helpers')
 
 module.exports = async(shardId, shardCache = [])=>{
   try{
@@ -51,7 +51,7 @@ module.exports = async(shardId, shardCache = [])=>{
         count = 0
       }
     }
-    await DiscordMsg({sId: shard.sId}, {method: 'editMsg', chId: shard.payChannel, msgId: shard.payMsgs[0], msg: {embeds: embeds}})
+    await botRequest('editMsg', { sId: shard.sId, shardId: shard?._id, chId: shard.payChannel, msgId: shard.payMsg || shard.payMsgs[0], msg: { embeds: embeds }})
   }catch(e){
     log.error(e)
   }

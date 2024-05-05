@@ -1,8 +1,9 @@
 'use strict'
+const log = require('logger')
 const sorter = require('json-array-sorter')
 const getDiscordId = require('./getDiscordId')
 const getShardName = require('./getShardName')
-const discordMsg  = require('./discordMsg')
+const botRequest = require('./botrequest')
 
 module.exports = async(chId, obj = [], shard = {})=>{
   try{
@@ -23,8 +24,8 @@ module.exports = async(chId, obj = [], shard = {})=>{
         }
       }
     }
-    discordMsg({sId: shard.sId}, {method: 'sendMsg', chId: chId, msg: {content: content, embeds: [embedMsg]}})
+    botRequest('sendMsg', { sId: shard.sId, shardId: shard._id, patreonId: obj.patreonId, guildId: obj.guildId, chId: chId, msg: { content: content, embeds: [embedMsg] } })
   }catch(e){
-    throw(e)
+    log.error(e)
   }
 }

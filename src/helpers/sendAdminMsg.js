@@ -1,9 +1,9 @@
 'use strict'
 const log = require('logger')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const timeTillPayout = require('./timeTillPayout')
 
-module.exports = async(data = {}, shard = {})=>{
+module.exports = (data = {}, shard = {})=>{
   try{
     let content
     if(data.oldName != data.newName){
@@ -22,15 +22,17 @@ module.exports = async(data = {}, shard = {})=>{
       }
       content += '\n'
     }
-    if(content && shard.adminMsg == 'channel' && shard.adminChannel) discordMsg({ sId: shard.sId }, {
+    if(content && shard.adminMsg == 'channel' && shard.adminChannel) botRequest('sendMsg', {
+      sId: shard.sId,
+      shardId: shard._id,
       chId: shard.adminChannel,
-      method: 'sendMsg',
-      msg: {content: content}
+      msg: { content: content }
     })
-    if(content && shard.adminMsg == 'dm' && shard.adminUser) discordMsg({sId: shard.sId}, {
+    if(content && shard.adminMsg == 'dm' && shard.adminUser) botRequest('sendDM', {
+      sId: shard.sId,
+      shardId: shard._id,
       dId: shard.adminUser,
-      method: 'sendDM',
-      msg: {content: content}
+      msg: { content: content }
     })
   }catch(e){
     log.error(e)

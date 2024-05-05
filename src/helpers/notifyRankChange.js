@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const getDiscordId = require('./getDiscordId')
 const getShardName = require('./getShardName')
 
@@ -17,15 +17,7 @@ module.exports = async(obj = {})=>{
       if(obj.swap){
         embedMsg.description += (obj.rank > obj.oldRank ? 'Bumped by':'Dropped')+' '+(obj.swap.emoji ? obj.swap.emoji+' ':'')+'**'+obj.swap.name+'**'
       }
-
-      //MSG.SendDM(discordId, {embed: embedMsg})
-      let opts = {}
-      if(obj.sId){
-        opts.sId = obj.sId
-      }else{
-        opts.shardId = 0
-      }
-      await discordMsg(opts, {method: 'sendDM', dId: discordId, msg: {embeds: [embedMsg]}})
+      botRequest('sendDM', { sId: obj.sId, shardId: obj.shardId, patreonId: obj.patreonId, guildId: obj.guildId, dId: discordId, msg: { embeds: [embedMsg] } })
     }
   }catch(e){
     log.error(obj)

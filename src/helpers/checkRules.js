@@ -6,7 +6,7 @@ const checkEnemyHit = require('./checkEnemyHit')
 const checkEnemySkip = require('./checkEnemySkip')
 const getDiscordId = require('./getDiscordId')
 const sorter = require('json-array-sorter')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const deepCopy = require('./deepCopy')
 
 module.exports = async(shardId, obj = [], ranks = [])=>{
@@ -14,7 +14,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
     if(!obj || obj?.length == 0) return
     if(!ranks || ranks?.length == 0) return
 
-    let shard = (await mongo.find('payoutServers', {_id: shardId}, {rules: 1, sId: 1}))[0]
+    let shard = (await mongo.find('payoutServers', { _id: shardId }, {rules: 1, sId: 1}))[0]
     let rules = shard?.rules
     if(!rules || shard?.rule?.length == 0) return
 
@@ -23,7 +23,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
     for(let i in obj){
       if((!obj[i].emoji || rules.enemy.filter(x=>x == obj[i].emoji).length == 0) && obj[i].swap){
         let discordId = await getDiscordId(obj[i])
-        if(obj[i].swap && obj[i].swap.emoji && rules.enemy.filter(x=>x == obj[i].swap.emoji).length > 0){
+        if(obj[i]?.swap?.emoji && rules.enemy.filter(x=>x == obj[i].swap.emoji).length > 0){
           let enemyHitMsg = await checkEnemyHit(rules.enemyHits, obj[i])
           if(enemyHitMsg && enemyHitMsg.color && rules.enemyHits && rules.enemyHits.chId){
             if(!tempEmbeds[rules.enemyHits.chId]) tempEmbeds[rules.enemyHits.chId] = {chId: rules.enemyHits.chId, msgs: []}
@@ -39,7 +39,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
                     if(!tempEmbeds[rules.enemyHits.chId].content) tempEmbeds[rules.enemyHits.chId].content = ''
                     tempEmbeds[rules.enemyHits.chId].content += '<@'+discordId+'> '
                   }else{
-                    discordMsg({sId: shard.sId}, {method: 'sendDM', dId: discordId, msg: {embeds:[enemyHitMsg]}})
+                    botRequest(sendDM, { sId: shard.sId, shardId: shardId, dId: discordId, msg: { embeds:[enemyHitMsg] } })
                   }
                 }
               }
@@ -72,7 +72,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
                     if(!tempEmbeds[rules.earlyHits.chId].content) tempEmbeds[rules.earlyHits.chId].content = ''
                     tempEmbeds[rules.earlyHits.chId].content += '<@'+discordId+'> '
                   }else{
-                    discordMsg({sId: shard.sId}, {method: 'sendDM', dId: discordId, msg: {embeds:[earlyHitMsg]}})
+                    botRequest('sendDM', { sId: shard.sId, shardId: shardId, dId: discordId, msg: { embeds:[earlyHitMsg] } })
                   }
                 }
               }
@@ -94,7 +94,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
                       if(!tempEmbeds[rules.enemySkips.chId].content) tempEmbeds[rules.enemySkips.chId].content = ''
                       tempEmbeds[rules.enemySkips.chId].content += '<@'+discordId+'> '
                     }else{
-                      discordMsg({sId: shard.sId}, {method: 'sendDM', dId: discordId, msg: {embeds:[earlyHitMsg]}})
+                      botRequest('sendDM', { sId: shard.sId, shardId: shardId, dId: discordId, msg: { embeds:[earlyHitMsg] } })
                     }
                   }
                 }
@@ -106,7 +106,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
     }
     let embeds = Object.values(tempEmbeds)
     if(!embeds || embeds?.length == 0) return
-    
+
     for(let i in embeds){
       if(embeds[i].chId && embeds[i].msgs && embeds[i].msgs.length > 0){
         let msg2send = {embeds: []}, count = 0
@@ -116,7 +116,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
           count++;
           if(+m + 1 == embeds[i].msgs.length && count < 10) count = 10
           if(count == 10){
-            discordMsg({sId: shard.sId}, { method: 'sendMsg', chId: embeds[i].chId, msg: deepCopy(msg2send) })
+            botRequest('sendMsg', { sId: shard.sId, shardId: shardId, chId: embeds[i].chId, msg: deepCopy(msg2send) })
             delete msg2send.content
             msg2send.embeds = []
             count = 0

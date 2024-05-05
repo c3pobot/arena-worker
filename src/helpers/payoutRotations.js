@@ -1,7 +1,7 @@
 'use strict'
 const log = require('logger')
 const mongo = require('mongoclient')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const getPOHour = require('./getPOHour')
 const getRotation = require('./getRotation')
 
@@ -14,8 +14,8 @@ module.exports = async(obj = {})=>{
       if(msg2send){
         let firstPlace = obj.players.shift()
         obj.players.push(firstPlace)
-        mongo.set('shardRotations', {_id: obj.shardId}, {[obj.id+'.players']: obj.players, [obj.id+'.notifyStart']: 1})
-        discordMsg({sId: obj.sId}, {method: 'sendMsg', chId: obj.chId, msg: {content: msg2send}})
+        await mongo.set('shardRotations', {_id: obj.shardId}, {[obj.id+'.players']: obj.players, [obj.id+'.notifyStart']: 1})
+        botRequest('sendMsg', { sId: obj.sId, shardId: obj.shardId, chId: obj.chId, msg: { content: msg2send } })
       }
     }
   }catch(e){

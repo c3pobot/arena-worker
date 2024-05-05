@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const getDiscordId = require('./getDiscordId')
 const getShardName = require('./getShardName')
 
@@ -12,13 +12,7 @@ module.exports = async(obj = {})=>{
       color: 15844367,
       description: getShardName(obj)+' Arena Logs\n'+(obj.emoji ? obj.emoji:'')+' **'+obj.name+'** payout at Rank **' + obj.rank + '**'
     }
-    let opts = {}
-    if(obj.sId){
-      opts.sId = obj.sId
-    }else{
-      opts.shardId = 0
-    }
-    await discordMsg(opts, {method: 'sendDM', dId: discordId, msg: {embeds: [embedMsg]}})
+    botRequest('sendDM', { sId: obj.sId, shardId: obj.shardId, patreonId: obj.patreonId, guildId: obj.guildId, dId: discordId, msg: { embeds: [embedMsg] } })
   }catch(e){
     log.error(e)
   }

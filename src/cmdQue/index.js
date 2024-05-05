@@ -19,7 +19,7 @@ const processCmd = async(obj = {})=>{
 }
 const startConsumer = async()=>{
   if(consumer) await consumer.close()
-  consumer = rabbitmq.createConsumer({ consumerTag: POD_NAME, concurrency: 1, qos: { prefetchCount: 1 }, queue: QUE_NAME, queueOptions: { durable: true, arguments: { 'x-queue-type': 'quorum', 'x-message-ttl': 600000  } } }, processCmd)
+  consumer = rabbitmq.createConsumer({ consumerTag: POD_NAME, concurrency: 1, qos: { prefetchCount: 1 }, queue: QUE_NAME, queueOptions: { durable: true, arguments: { 'x-queue-type': 'quorum' } } }, processCmd)
   consumer.on('error', (err)=>{
     log.info(err)
   })
@@ -31,8 +31,7 @@ const startConsumer = async()=>{
 module.exports.startConsumer = startConsumer
 module.exports.startProducer = async()=>{
   let status = await clearQue()
-  log.info(status)
-  publisher = rabbitmq.createPublisher({ confirm: true, queues: [{ queue: QUE_NAME, durable: true, arguments: { 'x-queue-type': 'quorum', 'x-message-ttl': 600000 } }]})
+  publisher = rabbitmq.createPublisher({ confirm: true, queues: [{ queue: QUE_NAME, durable: true, arguments: { 'x-queue-type': 'quorum' } }]})
   log.info(`${POD_NAME} arena publisher started...`)
   publisherReady = true
   return true
@@ -45,5 +44,5 @@ module.exports.send = async(payload = {})=>{
 module.exports.restartConsumer = async(data)=>{
   if(!data || data?.set !== 'po-worker' || data?.cmd !== 'restart') return
   log.info(`${POD_NAME} received a consumer restart cmd...`)
-  startConsumer()
+  setTimeout(startConsumer, 10000)
 }

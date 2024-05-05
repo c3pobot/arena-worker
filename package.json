@@ -20,12 +20,9 @@
   },
   "homepage": "https://gitlab.com/c3po-shard/poworker#readme",
   "dependencies": {
-    "async": "^3.2.0",
-    "bottleneck": "^2.19.5",
     "json-array-sorter": "0.0.5",
     "logger": "github:c3pobot/logger",
     "mongoclient": "github:c3pobot/mongoclient",
-    "mqtt": "^5.5.3",
     "node-fetch": "^2.6.7",
     "rabbitmq-client": "^4.5.4"
   }

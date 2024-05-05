@@ -1,5 +1,6 @@
 'use strict'
 const Cmds = {}
+Cmds.botRequest = require('./botrequest')
 Cmds.CheckRules = require('./checkRules')
 
 Cmds.DeepCopy = require('./deepCopy')

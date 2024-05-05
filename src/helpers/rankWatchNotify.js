@@ -1,12 +1,12 @@
 'use strict'
 const log = require('logger')
 const mongo = require('mongoclient')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const getShardName = require('./getShardName')
 
-module.exports = async(obj = [])=>{
+module.exports = async(obj = [], shard)=>{
   try{
-    if(obj.length == 0) return
+    if(obj.length == 0 || !shard) return
     for(let i in obj){
       let embedMsg = {
         color: 3066993,
@@ -18,7 +18,7 @@ module.exports = async(obj = [])=>{
       }else{
         opts.shardId = 0
       }
-      discordMsg(opts, {method: 'sendDM', dId: obj[i].dId, msg: {embeds: [embedMsg]}})
+      botRequest('sendDM', { sId: shard.sId, shardId: shard._id, dId: obj[i].dId, msg: { embeds: [embedMsg] } })
       mongo.del('shardWatch', {_id: obj[i]._id})
     }
   }catch(e){

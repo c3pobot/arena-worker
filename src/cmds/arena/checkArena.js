@@ -1,9 +1,7 @@
 'use strict'
-const { eachLimit } = require('async')
 const mongo = require('mongoclient')
 const SyncRank = require('./syncRank')
-const MAX_SYNC = process.env.MAX_SYNC || 20
-module.exports = async(players = [], chId = null, sId)=>{
+module.exports = async(players = [], chId = null, sId, patreonId, guildId)=>{
   if(!players || players?.length == 0) return
   let allyCodes = players.map(u=>+u.allyCode)
   let rankCache = await mongo.find('rankCache', { allyCode: { $in: allyCodes } })
@@ -13,7 +11,7 @@ module.exports = async(players = [], chId = null, sId)=>{
   while(i--){
     let oldData = rankCache.find(x=>x._id == players[i].playerId)
     let pObj = pSettings.find(x=>x._id == players[i].playerId)
-    array.push(SyncRank(players[i], oldData, pObj, chId, sId))
+    array.push(SyncRank(players[i], oldData, pObj, chId, sId, patreonId, guildId))
   }
   await Promise.allSettled(array)
 }

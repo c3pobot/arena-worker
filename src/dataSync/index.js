@@ -12,6 +12,14 @@ const createPublisher = async()=>{
   if(!rabbitmq.ready) return
   publisher = rabbitmq.createPublisher({ confirm: true, exchanges: [{ exchange: EXCHANGE_NAME, type: 'topic', durable: true, maxAttempts: 5 }]})
   publisherReady = true
+  publisher.on('basic.return', (msg)=>{
+    log.info('basic.return')
+    log.info(msg)
+  })
+  publisher.on('retry', (err, envelope, body)=>{
+    log.info('retry')
+    log.info(err)
+  })
   log.info(`${POD_NAME} ${ROUTING_KEY} publisher is ready...`)
   return true
 }
@@ -26,7 +34,7 @@ const syncPatreon = async()=>{
       let status = await cmdQue.send({ name: 'arena', patreonId: patreons[i]._id})
       if(status){
         patreonSet.add(patreons[i]._id)
-        log.info(`Added ${patreons[i]._id} to patreon que...`)
+        log.debug(`Added ${patreons[i]._id} to patreon que...`)
       }
     }
     return true
@@ -44,7 +52,7 @@ const syncShards = async()=>{
       let status = await cmdQue.send({ name: 'shard', shardId: shards[i]._id})
       if(status){
         shardSet.add(shards[i]._id)
-        log.info(`Added ${shards[i]._id} to shard que...`)
+        log.debug(`Added ${shards[i]._id} to shard que...`)
       }
     }
     return true

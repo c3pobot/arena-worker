@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const getShardName = require('./getShardName')
 
 module.exports = async(watch = {}, obj = [], shard = {})=>{
@@ -19,7 +19,7 @@ module.exports = async(watch = {}, obj = [], shard = {})=>{
         content += '**'+obj[i].rank+'**\n'
       }
     }
-    if(content) discordMsg({sId: shard.sId}, {method: 'sendMsg', chId: watch.chId, msg: {content: content}})
+    if(content) botRequest('sendMsg', { sId: shard.sId, shardId: shard._id, chId: watch.chId, msg: { content: content } })
   }catch(e){
     log.error(e)
   }

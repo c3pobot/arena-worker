@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const getDiscordId = require('./getDiscordId')
 
 module.exports = async(chId, obj = [], shard)=>{
@@ -14,7 +14,7 @@ module.exports = async(chId, obj = [], shard)=>{
         content += '<@' + discordId + '> Starting notifications of rank drops in **' + (obj[i].type == 'char' ? 'Squad':'Fleet') + '** arena. Current Rank **' + obj[i].rank + '**\n'
       }
     }
-    discordMsg({sId: shard.sId}, {method: 'sendMsg', chId: chId, msg: {content: content}})
+    botRequest('sendMsg', { sId: shard.sId, shardId: shard._id, patreonId: obj.patreonId, guildId: obj.guildId, chId: chId, msg: { content: content } })
   }catch(e){
     log.error(e)
   }

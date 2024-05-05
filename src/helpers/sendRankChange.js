@@ -1,7 +1,7 @@
 'use strict'
 const log = require('logger')
 const mongo = require('mongoclient')
-const discordMsg = require('./discordMsg')
+const botRequest = require('./botrequest')
 const getDiscordId = require('./getDiscordId')
 const getShardName = require('./getShardName')
 
@@ -53,7 +53,7 @@ module.exports = async(obj = {})=>{
         }
       }
     }
-    await discordMsg({ sId: obj.sId }, {method: 'sendMsg', chId: obj.chId, msg: {content: content, embeds: [embedMsg]}})
+    botRequest('sendMsg', { sId: obj.sId, shardId: obj.shardId, patreonId: obj.patreonId, guildId: obj.guildId, chId: obj.chId, msg: { content: content, embeds: [embedMsg] } })
   }catch(e){
     log.error(e)
   }

@@ -1,7 +1,7 @@
 'use strict'
 const mongo = require('mongoclient')
 const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, SendPayoutMsg, SendRankChange, SendStartMsg } = require('src/helpers')
-module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId = null)=>{
+module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId = null, patreonId, guildId)=>{
   let dataChange = 0, currentShipRank = (obj.arena.ship.rank || 0), currentCharRank = (obj.arena.char.rank || 0)
   if(!oldData) dataChange++
   if(!oldData) oldData  = { char: { currentRank: currentCharRank }, ship: { currentRank: currentShipRank }, notify: { charPO: 0,  shipPO: 0, charStart: 0, shipStart: 0 } };
@@ -27,6 +27,8 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
       rank: currentCharRank,
       oldRank: oldCharRank,
       poHour: charPOhour,
+      patreonId: patreonId,
+      guildId: guildId,
       method: pObj.notify.method,
       type: 'char',
       chId: chId,
@@ -43,6 +45,8 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
       rank: currentShipRank,
       oldRank: oldShipRank,
       poHour: shipPOhour,
+      patreonId: patreonId,
+      guildId: guildId,
       method: pObj.notify.method,
       type: 'ship',
       chId: chId,

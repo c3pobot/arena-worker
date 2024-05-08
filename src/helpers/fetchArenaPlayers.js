@@ -1,13 +1,14 @@
 'use strict'
-const apiRequest = require('./apiRequest')
+const log = require('logger')
+const swgohClient = require('src/swgohClient')
 const formatArenaPlayer = require('./formatArenaPlayer')
 const getArenaPlayer = async(payload = {})=>{
   try{
     if(payload.playerId) delete payload.allyCode
-    let obj = await apiRequest('playerArena', payload)
+    let obj = await swgohClient('playerArena', payload)
     if(obj?.allyCode) return formatArenaPlayer(obj)
   }catch(e){
-    throw(e);
+    log.error(e);
   }
 }
 module.exports = async(players = [])=>{

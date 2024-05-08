@@ -4,9 +4,8 @@ const checkRotations = require('./checkRotations')
 const syncRanks = require('./syncRanks')
 const updateRankMsg = require('./updateRankMsg')
 const updatePayoutMsg = require('./updatePayoutMsg')
-const swgohClient = require('src/swgohClient')
 
-const { CheckRules, SendEnemyWatchMsg, SendWatchMsg, SendPayoutMsg, SendStartMsg } = require('src/helpers')
+const { fetchArenaPlayers, CheckRules, SendEnemyWatchMsg, SendWatchMsg, SendPayoutMsg, SendStartMsg } = require('src/helpers')
 
 module.exports = async(data = {})=>{
   //data format { name: 'shard', shardId: shardId }
@@ -18,7 +17,7 @@ module.exports = async(data = {})=>{
   let shardPlayers = await mongo.find('shardPlayers', { shardId: shard._id }, {_id :0 })
   if(!shardPlayers || shardPlayers?.length == 0) return
 
-  let playersFormated = await swgohClient.fetchArenaPlayers(shardPlayers)
+  let playersFormated = await fetchArenaPlayers(shardPlayers)
   if(!playersFormated || playersFormated?.length == 0) return
 
   let watchObj = await mongo.find('shardWatch', { shardId: shard._id })

@@ -5,9 +5,6 @@ const cmdProcessor = require('./cmdProcessor')
 let QUE_NAME = process.env.WORKER_QUE_NAME_SPACE || 'default', POD_NAME = process.env.POD_NAME || 'po-worker', consumer, publisher, publisherReady
 QUE_NAME += `.worker.arena`
 
-const clearQue = async()=>{
-  return await rabbitmq.queueDelete(QUE_NAME)
-}
 const processCmd = async(obj = {})=>{
   try{
     await cmdProcessor(obj)
@@ -17,7 +14,7 @@ const processCmd = async(obj = {})=>{
     return 1
   }
 }
-const startConsumer = async()=>{
+const start = async()=>{
   if(consumer) await consumer.close()
   consumer = rabbitmq.createConsumer({ consumerTag: POD_NAME, concurrency: 1, qos: { prefetchCount: 1 }, queue: QUE_NAME, queueOptions: { durable: true, arguments: { 'x-queue-type': 'quorum' } } }, processCmd)
   consumer.on('error', (err)=>{
@@ -28,20 +25,13 @@ const startConsumer = async()=>{
   })
   return true
 }
-module.exports.startConsumer = startConsumer
-module.exports.startProducer = async()=>{
-  let status = await clearQue()
-  publisher = rabbitmq.createPublisher({ confirm: true, queues: [{ queue: QUE_NAME, durable: true, arguments: { 'x-queue-type': 'quorum' } }]})
-  log.info(`${POD_NAME} arena publisher started...`)
-  publisherReady = true
-  return true
-}
+module.exports.start = startConsumer
 module.exports.send = async(payload = {})=>{
   if(!publisherReady) return
   await publisher.send(QUE_NAME, payload )
   return true
 }
-module.exports.restartConsumer = async(data)=>{
+module.exports.restart = async(data)=>{
   if(!data || data?.set !== 'po-worker' || data?.cmd !== 'restart') return
   log.info(`${POD_NAME} received a consumer restart cmd...`)
   setTimeout(startConsumer, 10000)

@@ -6,6 +6,8 @@ Cmds.CheckRules = require('./checkRules')
 Cmds.DeepCopy = require('./deepCopy')
 Cmds.DiscordMsg = require('./discordMsg')
 
+Cmds.fetchArenaPlayers = require('./fetchArenaPlayers')
+
 Cmds.GetDiscordId = require('./getDiscordId')
 Cmds.GetPayouts = require('./getPayouts')
 Cmds.GetPOHour = require('./getPOHour')

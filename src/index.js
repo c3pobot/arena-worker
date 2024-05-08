@@ -6,7 +6,7 @@ const mongo = require('mongoclient')
 const rabbitmq = require('./helpers/rabbitmq')
 const swgohClient = require('./swgohClient')
 const updateDataList = require('./helpers/updateDataList')
-const dataSync = require('./dataSync')
+
 require('./exchanges')
 const { botSettings } = require('./helpers/botSettings')
 const { dataList } = require('./helpers/dataList')
@@ -42,13 +42,9 @@ const checkMongo = ()=>{
 }
 const checkAPIReady = async()=>{
   try{
-    let obj = await swgohClient.metadata()
+    let obj = await swgohClient('metadata')
     if(obj?.latestGamedataVersion){
       log.info('API is ready ..')
-      if(POD_NAME?.toString().endsWith("0")){
-        checkDataSync()
-        return
-      }
       await cmdQue.startConsumer()
       return
     }
@@ -57,19 +53,6 @@ const checkAPIReady = async()=>{
   }catch(e){
     log.error(e)
     setTimeout(checkAPIReady, 5000)
-  }
-}
-const checkDataSync = async()=>{
-  try{
-    let status = await dataSync.start()
-    if(status){
-      await cmdQue.startConsumer()
-      return
-    }
-    setTimeout(checkDataSync, 5000)
-  }catch(e){
-    log.error(e)
-    setTimeout(checkDataSync, 5000)
   }
 }
 checkRabbitmq()

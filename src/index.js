@@ -11,8 +11,6 @@ require('./exchanges')
 const { botSettings } = require('./helpers/botSettings')
 const { dataList } = require('./helpers/dataList')
 
-const POD_NAME = process.env.POD_NAME || 'po-worker'
-
 let cmdQue = require('./cmdQue')
 
 const checkRabbitmq = ()=>{
@@ -45,7 +43,7 @@ const checkAPIReady = async()=>{
     let obj = await swgohClient('metadata')
     if(obj?.latestGamedataVersion){
       log.info('API is ready ..')
-      await cmdQue.startConsumer()
+      await cmdQue.start()
       return
     }
     log.info('API is not ready. Will try again in 5 seconds')

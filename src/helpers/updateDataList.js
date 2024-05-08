@@ -20,6 +20,7 @@ const update = async( data )=>{
     if(status){
       let msg = 'dataList updated'
       if(data?.gameVersion) msg += ` to version ${data?.gameVersion}...`
+      log.info(msg)
       return
     }
     setTimeout(()=>update(data))

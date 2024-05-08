@@ -1,24 +1,16 @@
 {
-  "name": "poworker",
+  "name": "arena-worker",
   "version": "1.0.0",
-  "description": "po worker",
-  "main": "server.js",
+  "description": "arena-worker",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "update": "chmod a+x updategitdependency.sh && ./updategitdependency.sh",
-    "build": "chmod a+x buildtestimage.sh && ./buildtestimage.sh c3pobot/poworker",
-    "prod": "chmod a+x buildprodimage.sh && ./buildprodimage.sh c3pobot/poworker"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@gitlab.com/c3po-shard/poworker.git"
+    "build": "chmod a+x buildtestimage.sh && ./buildtestimage.sh c3pobot/arena-worker",
+    "prod": "chmod a+x buildprodimage.sh && ./buildprodimage.sh c3pobot/arena-worker"
   },
   "author": "scuba",
   "license": "ISC",
-  "bugs": {
-    "url": "https://gitlab.com/c3po-shard/poworker/issues"
-  },
-  "homepage": "https://gitlab.com/c3po-shard/poworker#readme",
   "dependencies": {
     "json-array-sorter": "0.0.5",
     "logger": "github:c3pobot/logger",

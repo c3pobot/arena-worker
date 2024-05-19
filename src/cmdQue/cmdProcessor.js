@@ -7,7 +7,7 @@ module.exports = async(obj = {})=>{
     if(!obj?.body?.name) return
     log.debug(`${obj.body.name} processing started...`)
     if(Cmds[obj.body.name]) await Cmds[obj.body.name](obj.body)
-    if(process.env.IS_TEST) await sleep(30000)
+    //if(process.env.IS_TEST) await sleep(30000)
     log.debug(`${obj.body.name} procssing done...`)
   }catch(e){
     log.error(e)

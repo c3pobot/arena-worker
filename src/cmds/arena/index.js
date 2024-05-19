@@ -14,6 +14,7 @@ module.exports = async(data = {})=>{
     for(let i in guilds){
       //console.log('starting sync for guild '+guilds[i].id)
       let guild = await swgohClient('guild', { guildId: guilds[i].id })
+      guild = guild?.guild
       if(guild?.member?.length > 0) await syncPlayers(guild.member, guilds[i].chId, guilds[i].sId, data.patreonId, guilds[i].id)
     }
   }

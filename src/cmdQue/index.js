@@ -2,6 +2,7 @@
 const log = require('logger')
 const rabbitmq = require('src/helpers/rabbitmq')
 const cmdProcessor = require('./cmdProcessor')
+const msgTTL = +process.env.RABBIT_MQ_TTL || 60
 let QUE_NAME = process.env.WORKER_QUE_NAME_SPACE || process.env.NAME_SPACE || 'default', POD_NAME = process.env.POD_NAME || 'arena-worker', consumer
 QUE_NAME += `.sync.arena`
 
@@ -16,7 +17,7 @@ const processCmd = async(obj = {})=>{
 }
 const start = async()=>{
   if(consumer) await consumer.close()
-  consumer = rabbitmq.createConsumer({ consumerTag: POD_NAME, concurrency: 1, qos: { prefetchCount: 1 }, queue: QUE_NAME, queueOptions: { durable: true, arguments: { 'x-queue-type': 'quorum' } } }, processCmd)
+  consumer = rabbitmq.createConsumer({ consumerTag: POD_NAME, concurrency: 1, qos: { prefetchCount: 1 }, queue: QUE_NAME, queueOptions: { durable: true, arguments: { 'x-queue-type': 'quorum', 'x-message-ttl': msgTTL * 1000 } } }, processCmd)
   consumer.on('error', (err)=>{
     log.info(err)
   })

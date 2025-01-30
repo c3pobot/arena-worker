@@ -1,4 +1,5 @@
 'use strict'
+const log = require('logger')
 const mongo = require('mongoclient')
 const checkRotations = require('./checkRotations')
 const syncRanks = require('./syncRanks')
@@ -9,6 +10,7 @@ const { fetchArenaPlayers, CheckRules, SendEnemyWatchMsg, SendWatchMsg, SendPayo
 
 module.exports = async(data = {})=>{
   //data format { name: 'shard', shardId: shardId }
+  log.debug(`Started sync of shard ${data.shardId}`)
   let timeStart = Date.now()
   let shard = (await mongo.find('payoutServers', { _id: data.shardId }))[0]
   if(!shard || !shard?.status) return
@@ -38,4 +40,5 @@ module.exports = async(data = {})=>{
     SendPayoutMsg(shard.logChannel, ranks.po.main, shard)
     SendPayoutMsg(shard.altChannel, ranks.po.alt, shard)
   }
+  log.debug(`Completed sync of shard ${data.shardId}`)
 }

@@ -5,6 +5,7 @@ const swgohClient = require('src/swgohClient')
 const mongo = require('mongoclient')
 module.exports = async(data = {})=>{
   //data format { name: 'arena', patreonId: patreonId }
+  log.debug(`Started sync of patreon ${data.patreonId}`)
   if(!data.patreonId) return
   let players = [], guilds = [], users = []
   let patreon = (await mongo.find('patreon', {_id: data.patreonId}))[0]
@@ -19,4 +20,5 @@ module.exports = async(data = {})=>{
     }
   }
   if(users?.length > 0) await syncPlayers(users, patreon.logChannel, patreon.sId, data.patreonId, null)
+  log.debug(`Completed sync of patreon ${data.patreonId}`)
 }

@@ -1,56 +1,53 @@
 'use strict'
 const log = require('logger')
-//log.setLevel('debug');
 const mongo = require('mongoclient')
-
-const rabbitmq = require('./helpers/rabbitmq')
+const rabbitmq = require('./rabbitmq')
 const swgohClient = require('./swgohClient')
 const updateDataList = require('./helpers/updateDataList')
-
-require('./exchanges')
 const { botSettings } = require('./helpers/botSettings')
 const { dataList } = require('./helpers/dataList')
 
-let cmdQue = require('./cmdQue')
-
-const checkRabbitmq = ()=>{
+const CheckMongo = ()=>{
   try{
-    if(rabbitmq.ready){
-      checkMongo()
-      return
-    }
-    setTimeout(checkRabbitmq, 5000)
-  }catch(e){
-    log.error(e)
-    setTimeout(checkRabbitmq, 5000)
-  }
-}
-const checkMongo = ()=>{
-  try{
+    log.debug(`start up mongo check...`)
     let status = mongo.status()
     if(status){
-      checkAPIReady()
+      CheckRabbitMQ()
       return
     }
-    setTimeout(checkMongo, 5000)
+    setTimeout(CheckMongo, 5000)
   }catch(e){
-    log.error(e)
-    setTimeout(checkMongo, 5000)
+    reportError(e)
+    setTimeout(CheckMongo, 5000)
   }
 }
-const checkAPIReady = async()=>{
+const CheckRabbitMQ = ()=>{
+  try{
+    if(!rabbitmq?.status) log.debug(`rabbitmq is not ready...`)
+    if(rabbitmq?.status){
+      log.debug(`rabbitmq is ready...`)
+      CheckAPIReady()
+      return
+    }
+    setTimeout(CheckRabbitMQ, 5000)
+  }catch(e){
+    reportError(e)
+    setTimeout(CheckRabbitMQ, 5000)
+  }
+}
+const CheckAPIReady = async()=>{
   try{
     let obj = await swgohClient('metadata')
     if(obj?.latestGamedataVersion){
       log.info('API is ready ..')
-      await cmdQue.start()
+      rabbitmq.start()
       return
     }
     log.info('API is not ready. Will try again in 5 seconds')
-    setTimeout(checkAPIReady, 5000)
+    setTimeout(CheckAPIReady, 5000)
   }catch(e){
     log.error(e)
-    setTimeout(checkAPIReady, 5000)
+    setTimeout(CheckAPIReady, 5000)
   }
 }
-checkRabbitmq()
+CheckMongo()

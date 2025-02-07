@@ -15,12 +15,6 @@ const updateUnitsList = async()=>{
 }
 const update = async( data )=>{
   try{
-    if(data?.logLevel){
-      log.setLevel(data?.logLevel);
-      log.info(`Log level set to ${data?.logLevel}`)
-      log.debug(`Log level set to ${data?.logLevel}`)
-      return
-    }
     let status = mongo.status()
     if(status) status = await updateUnitsList()
     if(status){

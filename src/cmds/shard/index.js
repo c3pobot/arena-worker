@@ -7,12 +7,21 @@ const updateRankMsg = require('./updateRankMsg')
 const updatePayoutMsg = require('./updatePayoutMsg')
 
 const { fetchArenaPlayers, CheckRules, SendEnemyWatchMsg, SendWatchMsg, SendPayoutMsg, SendStartMsg } = require('src/helpers')
-
+const reportSyncTime = (timeStart)=>{
+  try{
+    if(!timeStart) return
+    let syncTime = (Math.floor(Date.now() - timeStart) / 1000)
+    log.debug(`Completed sync of shard ${data.id} in ${syncTime} seconds...`)
+  }catch(e){
+    log.error(e)
+  }
+}
 module.exports = async(data = {})=>{
-  //data format { name: 'shard', shardId: shardId }
-  log.debug(`Started sync of shard ${data.shardId}`)
+  //data format { name: 'shard', id: shardId }
+  log.debug(`Started sync of shard ${data.id}`)
+  if(process.env.IS_TEST) return
   let timeStart = Date.now()
-  let shard = (await mongo.find('payoutServers', { _id: data.shardId }))[0]
+  let shard = (await mongo.find('payoutServers', { _id: data.id }))[0]
   if(!shard || !shard?.status) return
 
   checkRotations(shard)
@@ -40,5 +49,5 @@ module.exports = async(data = {})=>{
     SendPayoutMsg(shard.logChannel, ranks.po.main, shard)
     SendPayoutMsg(shard.altChannel, ranks.po.alt, shard)
   }
-  log.debug(`Completed sync of shard ${data.shardId}`)
+  reportSyncTime(timeStart)
 }

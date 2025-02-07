@@ -7,11 +7,11 @@ const updateRankMsg = require('./updateRankMsg')
 const updatePayoutMsg = require('./updatePayoutMsg')
 
 const { fetchArenaPlayers, CheckRules, SendEnemyWatchMsg, SendWatchMsg, SendPayoutMsg, SendStartMsg } = require('src/helpers')
-const reportSyncTime = (timeStart)=>{
+const reportSyncTime = (shardId, timeStart)=>{
   try{
     if(!timeStart) return
     let syncTime = (Math.floor(Date.now() - timeStart) / 1000)
-    log.debug(`Completed sync of shard ${data.id} in ${syncTime} seconds...`)
+    log.debug(`Completed sync of shard ${shardId} in ${syncTime} seconds...`)
   }catch(e){
     log.error(e)
   }
@@ -49,5 +49,5 @@ module.exports = async(data = {})=>{
     SendPayoutMsg(shard.logChannel, ranks.po.main, shard)
     SendPayoutMsg(shard.altChannel, ranks.po.alt, shard)
   }
-  reportSyncTime(timeStart)
+  reportSyncTime(shardId, timeStart)
 }

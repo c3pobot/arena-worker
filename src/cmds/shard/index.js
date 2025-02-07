@@ -49,5 +49,5 @@ module.exports = async(data = {})=>{
     SendPayoutMsg(shard.logChannel, ranks.po.main, shard)
     SendPayoutMsg(shard.altChannel, ranks.po.alt, shard)
   }
-  reportSyncTime(shardId, timeStart)
+  reportSyncTime(data.id, timeStart)
 }

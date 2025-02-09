@@ -1,8 +1,6 @@
 'use strict'
 const log = require('logger')
 const client = require('./client')
-const reportError = require('src/reportError')
-const exchange = require('./exchange')
 const consumer = require('./consumer')
 
 let POD_NAME = process.env.POD_NAME || 'arena-worker', NAME_SPACE = process.env.NAME_SPACE || 'default'
@@ -28,10 +26,9 @@ module.exports.notify = async( data, routingKey, exchange )=>{
     await publisher.send({ exchange: exchange, routingKey: routingKey }, data)
     return true
   }catch(e){
-    reportError(e)
+    log.error(e)
   }
 }
 module.exports.start = () =>{
-  exchange.start()
   consumer.start()
 }

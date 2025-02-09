@@ -1,6 +1,5 @@
 'use strict'
 const log = require('logger')
-const reportError = require('src/reportError')
 const Cmds = require('src/cmds')
 const sleep = (ms = 5000)=>{ return new Promise(resolve=>{setTimeout(resolve, ms)})}
 module.exports = async(data = {})=>{
@@ -11,6 +10,6 @@ module.exports = async(data = {})=>{
     if(process.env.IS_TEST) await sleep(30000)
     log.debug(`${data?.name} processing done for id ${data.id}...`)
   }catch(e){
-    reportError(e)
+    log.error(e)
   }
 }

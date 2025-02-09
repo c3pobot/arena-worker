@@ -2,7 +2,6 @@
 const log = require('logger')
 const client = require('./client')
 const cmdProcessor = require('./cmdProcessor')
-const reportError = require('src/reportError')
 
 let POD_NAME = process.env.POD_NAME || 'arena-worker', consumerStatus = false, QUE_NAME = 'sync.arena'
 
@@ -11,7 +10,7 @@ const processCmd = async(msg = {})=>{
     if(!msg.body) return
     return await cmdProcessor(msg?.body)
   }catch(e){
-    reportError(e)
+    log.error(e)
   }
 }
 
@@ -25,7 +24,7 @@ const consumer = client.createConsumer({
 }, processCmd)
 
 consumer.on('error', (err)=>{
-  reportError(err)
+  log.error(err)
 })
 consumer.on('ready', ()=>{
   log.info(`${POD_NAME} ${QUE_NAME} consumer created...`)
@@ -35,7 +34,7 @@ const stopConsumer = async()=>{
   try{
     await consumer.close()
   }catch(e){
-    reportError(e)
+    log.error(e)
   }
 }
 const startConsumer = async()=>{
@@ -46,7 +45,7 @@ const startConsumer = async()=>{
     await consumer.start()
     return true
   }catch(e){
-    reportError(e)
+    log.error(e)
   }
 }
 const watch = async() =>{
@@ -66,7 +65,7 @@ const watch = async() =>{
     }
     setTimeout(watch, 5000)
   }catch(e){
-    reportError(e)
+    log.error(e)
     setTimeout(watch, 5000)
   }
 }
@@ -74,6 +73,6 @@ module.exports.start = () =>{
   try{
     watch()
   }catch(e){
-    reportError(e)
+    log.error(e)
   }
 }

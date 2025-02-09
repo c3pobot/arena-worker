@@ -6,6 +6,7 @@ const swgohClient = require('./swgohClient')
 const updateDataList = require('./helpers/updateDataList')
 const { botSettings } = require('./helpers/botSettings')
 const { dataList } = require('./helpers/dataList')
+require('./exchange')
 
 const CheckMongo = ()=>{
   try{
@@ -17,7 +18,7 @@ const CheckMongo = ()=>{
     }
     setTimeout(CheckMongo, 5000)
   }catch(e){
-    reportError(e)
+    log.error(e)
     setTimeout(CheckMongo, 5000)
   }
 }
@@ -31,7 +32,7 @@ const CheckRabbitMQ = ()=>{
     }
     setTimeout(CheckRabbitMQ, 5000)
   }catch(e){
-    reportError(e)
+    log.error(e)
     setTimeout(CheckRabbitMQ, 5000)
   }
 }

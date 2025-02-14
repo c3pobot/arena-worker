@@ -1,7 +1,9 @@
 'use strict'
 const log = require('logger')
+const { dataList } = require('src/helpers/dataList')
+
 const Cmds = {}
-Cmds['setLogLevel'] = (data = {})=>{
+Cmds.setLogLevel = (data = {})=>{
   try{
     if(data?.logLevel){
       data?.logLevel
@@ -12,7 +14,13 @@ Cmds['setLogLevel'] = (data = {})=>{
     log.error(e)
   }
 }
-Cmds['updateData'] = require('src/helpers/updateDataList')
+Cmds.versionNotify = require('src/helpers/updateDataList')
+Cmds.numBotShardsNotify = ({ numBotShards })=>{
+  if(!numBotShards) return
+  if(numBotShards === dataList.numBotShards) return
+  dataList.numBotShards = numBotShards
+  log.info(`set number of numBotShards to ${dataList.numBotShards}...`)
+}
 module.exports = (data)=>{
   try{
     if(!data) return

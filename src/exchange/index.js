@@ -5,7 +5,7 @@ const client = require('../rabbitmq/client')
 const exchangeProcessor = require('./exchangeProcessor')
 
 let POD_NAME = process.env.POD_NAME || 'worker'
-let QUE_NAME = `topic.${POD_NAME}`, consumerStatus = false, NAME_SPACE = process.env.NAME_SPACE || 'default'
+let QUE_NAME = `xtopic.${POD_NAME}`, consumerStatus = false, NAME_SPACE = process.env.NAME_SPACE || 'default'
 
 let exchanges = [{ exchange: `${NAME_SPACE}.cmds`, type: 'topic' }]
 let queueBindings = [{ exchange: `${NAME_SPACE}.cmds`, queue: QUE_NAME }]

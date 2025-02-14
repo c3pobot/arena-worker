@@ -39,7 +39,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
                     if(!tempEmbeds[rules.enemyHits.chId].content) tempEmbeds[rules.enemyHits.chId].content = ''
                     tempEmbeds[rules.enemyHits.chId].content += '<@'+discordId+'> '
                   }else{
-                    botRequest(sendDM, { sId: shard.sId, shardId: shardId, dId: discordId, msg: { embeds:[enemyHitMsg] } })
+                    botRequest('sendDM', { sId: shard.sId, shardId: shardId, dId: discordId, msg: { embeds:[enemyHitMsg] } })
                   }
                 }
               }

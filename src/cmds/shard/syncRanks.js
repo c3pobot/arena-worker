@@ -7,7 +7,7 @@ const SyncPlayer = async(sObj, shardPlayers = [], aObj, players = [], oldData = 
 
   if(sObj && aObj && shard.type && shard.alt && shard._id){
     let adminMsg = '', pId = sObj.allyCode+'-'+shard._id, dataChange = 0
-    if(!sObj.type) mongo.set('shardPlayers', {_id: pId}, { type:shard.type })
+    if(!sObj.type) mongo.set('shardPlayers', { _id: pId}, { type:shard.type })
     let currentMainRank = (+aObj.arena[shard.type].rank || 0), currentAltRank = (+aObj.arena[shard.alt].rank || 0), poHourMain = GetPOHour(aObj.poOffSet, shard.type), poHourAlt = GetPOHour(aObj.poOffSet, shard.alt);
     if(!oldData){
       oldData = {
@@ -220,7 +220,7 @@ const SyncPlayer = async(sObj, shardPlayers = [], aObj, players = [], oldData = 
 }
 module.exports = async(shardPlayers = [], playersFormated = [], shard = {}, watchObj)=>{
   let rankObj = {po: {main: [], alt: []}, start: {main: [], alt: []}, shard: [], watch: [], enemyWatch: [], rules: []}
-  let oldPlayers = await mongo.find('shardRankCache', {shardId: shard._id})
+  let oldPlayers = await mongo.find('shardRankCache', { _id: { $regex: shard._id } })
   if(!oldPlayers) return rankObj
 
   let array = [], i = playersFormated.length

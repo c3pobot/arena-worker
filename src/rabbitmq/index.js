@@ -1,12 +1,11 @@
 'use strict'
 const log = require('logger')
 const client = require('./client')
-const consumer = require('./consumer')
 
 let POD_NAME = process.env.POD_NAME || 'arena-worker', NAME_SPACE = process.env.NAME_SPACE || 'default'
 let DEFAULT_EXCHANGE = `${NAME_SPACE}.cmds`
 
-let exchanges = [{ exchange: DEFAULT_EXCHANGE, type: 'topic', maxAttempts: 5 }]
+let exchanges = [{ exchange: DEFAULT_EXCHANGE, type: 'topic', maxAttempts: 5 }, { exchange: 'bot.msg', type: 'topic', maxAttempts: 5 }]
 
 log.info(`${POD_NAME} topic exchange publisher created...`)
 
@@ -28,7 +27,4 @@ module.exports.notify = async( data, routingKey, exchange )=>{
   }catch(e){
     log.error(e)
   }
-}
-module.exports.start = () =>{
-  consumer.start()
 }

@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const client = require('./client')
+const client = require('src/rabbitmq/client')
 const cmdProcessor = require('./cmdProcessor')
 
 let POD_NAME = process.env.POD_NAME || 'arena-worker', consumerStatus = false, QUE_NAME = 'sync.arena'

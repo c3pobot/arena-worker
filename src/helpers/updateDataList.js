@@ -4,6 +4,7 @@ const mongo = require('mongoclient')
 const arrayToObject = require('./arrayToObject')
 
 const { dataList } = require('./dataList')
+let notify
 const updateUnitsList = async()=>{
   let units = (await mongo.find('autoComplete', {_id: 'unit'}, {data: {value: 0}}))[0]
   if(!units?.data || units?.data?.length == 0) return
@@ -21,13 +22,22 @@ const update = async( data )=>{
       let msg = 'dataList updated'
       if(data?.gameVersion) msg += ` to version ${data?.gameVersion}...`
       log.info(msg)
-      return
+      return true
     }
-    setTimeout(()=>update(data))
   }catch(e){
     log.error(e)
-    setTimeout(()=>update(data))
   }
 }
-update()
+const start = async()=>{
+  try{
+    let status = mongo.status()
+    if(status) status = await update()
+    if(status) return
+    setTimeout(start, 5000)
+  }catch(e){
+    log.error(e)
+    setTimeout(start, 5000)
+  }
+}
+start()
 module.exports = update

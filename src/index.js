@@ -2,6 +2,7 @@
 const log = require('logger')
 const mongo = require('mongoclient')
 const rabbitmq = require('./rabbitmq')
+const cmdQue = require('./cmdQue')
 const swgohClient = require('./swgohClient')
 const updateDataList = require('./helpers/updateDataList')
 const { botSettings } = require('./helpers/botSettings')
@@ -27,7 +28,8 @@ const CheckRabbitMQ = ()=>{
     if(!rabbitmq?.status) log.debug(`rabbitmq is not ready...`)
     if(rabbitmq?.status){
       log.debug(`rabbitmq is ready...`)
-      CheckAPIReady()
+      rabbitmq.notify({ cmd: 'requestNumBotShards' })
+      CheckBot()
       return
     }
     setTimeout(CheckRabbitMQ, 5000)
@@ -36,12 +38,24 @@ const CheckRabbitMQ = ()=>{
     setTimeout(CheckRabbitMQ, 5000)
   }
 }
+const CheckBot = ()=>{
+  try{
+    if(dataList.numBotShards){
+      CheckAPIReady()
+      return
+    }
+    setTimeout(CheckBot, 5000)
+  }catch(e){
+    setTimeout(CheckBot, 5000)
+    log.error(e)
+  }
+}
 const CheckAPIReady = async()=>{
   try{
     let obj = await swgohClient('metadata')
     if(obj?.latestGamedataVersion){
       log.info('API is ready ..')
-      rabbitmq.start()
+      cmdQue.start()
       return
     }
     log.info('API is not ready. Will try again in 5 seconds')

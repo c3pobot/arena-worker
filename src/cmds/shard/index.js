@@ -19,13 +19,13 @@ const reportSyncTime = (shardId, timeStart)=>{
 module.exports = async(data = {})=>{
   //data format { name: 'shard', id: shardId }
   log.debug(`Started sync of shard ${data.id}`)
-  if(process.env.IS_TEST) return
+  //if(process.env.IS_TEST) return
   let timeStart = Date.now()
   let shard = (await mongo.find('payoutServers', { _id: data.id }))[0]
   if(!shard || !shard?.status) return
 
   checkRotations(shard)
-  let shardPlayers = await mongo.find('shardPlayers', { shardId: shard._id }, {_id :0 })
+  let shardPlayers = await mongo.find('shardPlayers', { _id: {$regex: shard._id } }, {_id :0 })
   if(!shardPlayers || shardPlayers?.length == 0) return
 
   let playersFormated = await fetchArenaPlayers(shardPlayers)

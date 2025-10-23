@@ -34,6 +34,9 @@ module.exports = async(data = {})=>{
   let watchObj = await mongo.find('shardWatch', { shardId: shard._id })
   let ranks = await syncRanks(shardPlayers, playersFormated, shard, watchObj);
   if(!ranks) return
+  //update stats
+  let statNameKey = `poserver.${data.id}`
+  mongo.set('meta', { _id: 'bot-stats' }, { [statNameKey]: { id: data.id, players: shardPlayers?.length }})
 
   let shardCache = ranks?.shard || []
   updateRankMsg(shard._id, JSON.parse(JSON.stringify(shardCache)))

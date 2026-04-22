@@ -46,7 +46,8 @@ const requestWithRetry = async(uri, opts = {}, count = 0)=>{
 
 module.exports = async(uri, payload = {})=>{
   try{
-    let opts = { headers: { 'Content-Type': 'application/json'}, timeout: 30000, compress: true, method: 'POST' }
+    //let opts = { headers: { 'Content-Type': 'application/json'}, timeout: 5000, compress: true, method: 'POST' }
+    let opts = { headers: { 'Content-Type': 'application/json'}, signal: AbortSignal.timeout(10000), compress: true, method: 'POST' }
     let body = { payload: payload }
     opts.body = JSON.stringify(body)
     let res = await requestWithRetry(`${GAME_CLIENT_URL}/${uri}`, opts)

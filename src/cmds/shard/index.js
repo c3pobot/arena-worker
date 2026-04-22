@@ -44,6 +44,7 @@ module.exports = async(data = {})=>{
   SendWatchMsg(shard.watch, ranks.watch, shard)
   CheckRules(shard._id, ranks.rules, JSON.parse(JSON.stringify(shardCache)))
   SendEnemyWatchMsg(shard.enemyWatch, ranks.enemyWatch, shard)
+
   if(ranks.start){
     SendStartMsg(shard.logChannel, ranks.start.main, shard)
     SendStartMsg(shard.altChannel, ranks.start.alt, shard)
@@ -52,5 +53,6 @@ module.exports = async(data = {})=>{
     SendPayoutMsg(shard.logChannel, ranks.po.main, shard)
     SendPayoutMsg(shard.altChannel, ranks.po.alt, shard)
   }
+
   reportSyncTime(data.id, timeStart)
 }

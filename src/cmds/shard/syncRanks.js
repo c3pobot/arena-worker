@@ -1,9 +1,10 @@
 'use strict'
+const log = require('logger')
 const mongo = require('mongoclient')
 
 const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, RankWatchNotify, SendAdminMsg, SendRankChange } = require('src/helpers')
 
-const SyncPlayer = async(sObj, shardPlayers = [], aObj, players = [], oldData = null, shard, watchObj, rankObj)=>{
+const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldData = null, shard, watchObj, rankObj)=>{
 
   if(sObj && aObj && shard.type && shard.alt && shard._id){
     let adminMsg = '', pId = sObj.allyCode+'-'+shard._id, dataChange = 0
@@ -223,11 +224,13 @@ module.exports = async(shardPlayers = [], playersFormated = [], shard = {}, watc
   let oldPlayers = await mongo.find('shardRankCache', { _id: { $regex: shard._id } })
   if(!oldPlayers) return rankObj
 
-  let array = [], i = playersFormated.length
+  let array = [], i = shardPlayers.length
   while(i--){
-    let sObj = shardPlayers.find(x=>x.playerId == playersFormated[i].playerId)
-    let oldData = oldPlayers.find(x=>x.playerId == playersFormated[i].playerId)
-    if(sObj?.allyCode) array.push(SyncPlayer(sObj, shardPlayers, playersFormated[i], playersFormated, oldData, shard, watchObj, rankObj))
+    //let sObj = shardPlayers.find(x=>x.playerId == playersFormated[i].playerId)
+    //let oldData = oldPlayers.find(x=>x.playerId == playersFormated[i].playerId)
+    let newData = playersFormated.find(x=>x.playerId == shardPlayers[i]?.playerId)
+    let oldData = oldPlayers.find(x=>x.playerId == shardPlayers[i]?.playerId)
+    if(shardPlayers[i]?.allyCode) array.push(SyncPlayer(shardPlayers[i], shardPlayers, newData || oldData, playersFormated, oldData, shard, watchObj, rankObj))
   }
   let res = await Promise.allSettled(array)
   return rankObj

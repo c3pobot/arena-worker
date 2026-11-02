@@ -1,18 +1,18 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const { botRequest, GetPayouts, GetShardName } = require('src/helpers')
 
 module.exports = async(shardId, shardCache = [])=>{
   try{
-    let shard = (await mongo.find('payoutServers', {_id: shardId}))[0]
+    let shard = await arenaCache.get('payoutServers', { _id: shardId })
     if(!shard || !shard.payChannel) return
 
     if(!shard.payMsgs){
-      let payMsgInfo = (await mongo.find('shardMessages', {_id: shard.sId+'-'+shard.payChannel}))[0]
+      let payMsgInfo = await arenaCache.get('shardMessages', { _id: shard.sId+'-'+shard.payChannel })
       if(payMsgInfo && payMsgInfo.msgId){
         shard.payMsgs = [payMsgInfo.msgId]
-        await mongo.set('payoutServers', {_id: shard._id}, {payMsgs: shard.payMsgs})
+        await arenaCache.set('payoutServers', { _id: shard._id },  {payMsgs: shard.payMsgs })
       }
     }
     if(!shard.payMsgs || shard.payMsgs?.length == 0) return

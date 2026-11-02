@@ -1,6 +1,5 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoclient')
 const swgohClient = require('src/swgohClient')
 const formatArenaPlayer = require('src/helpers/formatArenaPlayer')
 

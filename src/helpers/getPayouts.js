@@ -1,10 +1,10 @@
 'use strict'
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const sorter = require('json-array-sorter')
 const timeTillPayout = require('./timeTillPayout')
 
 module.exports = async(obj = {}, players = [], auto = false)=>{
-  if(players.length == 0) players = await mongo.find('shardRankCache', {shardId: obj._id}, {name: 1, poOffSet: 1, rank: 1, emoji: 1})
+  if(players.length == 0) players = await arenaCache.all('shardRankCache', { shardId: obj._id }, { name: 1, poOffSet: 1, rank: 1, emoji: 1 })
   if(!players || players?.length == 0) return
 
   if(auto && obj.poLimit) players = players.filter(x=>obj.poLimit >= x.rank)

@@ -1,5 +1,5 @@
 'use strict'
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, SendPayoutMsg, SendRankChange, SendStartMsg } = require('src/helpers')
 
 module.exports = async(obj = {}, oldData, pObj, sId, chId)=>{
@@ -137,10 +137,10 @@ module.exports = async(obj = {}, oldData, pObj, sId, chId)=>{
   }
   if(dataChange > 0){
     oldData.TTL = new Date()
-    await mongo.set('rankCache', {_id: obj.playerId}, oldData)
+    arenaCache.set('rankCache', { _id: obj.playerId }, oldData)
     if(oldData.history){
       delete oldData.history
-      await mongo.rep('rankCache', {_id: obj.playerId}, oldData)
+      arenaCache.replace('rankCache', { _id: obj.playerId }, oldData)
     }
   }
 }

@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const botRequest = require('./botrequest')
 const getDiscordId = require('./getDiscordId')
 const getShardName = require('./getShardName')
@@ -28,7 +28,7 @@ module.exports = async(obj = {})=>{
       if(!content) content = ''
       for(let i in obj.rankWatch){
         content += '<@'+obj.rankWatch[i].dId+'> the player at rank **'+obj.oldRank+'** has moved.\n'
-        mongo.del('shardWatch', {_id: obj.rankWatch[i]._id})
+        arenaCache.del('shardWatch', { _id: obj.rankWatch[i]._id })
       }
     }
     if(obj.enemyWatch?.notify){

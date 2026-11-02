@@ -1,5 +1,5 @@
 'use strict'
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, SendPayoutMsg, SendRankChange, SendStartMsg } = require('src/helpers')
 module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId = null, patreonId, guildId)=>{
   let dataChange = 0, currentShipRank = (obj.arena.ship.rank || 0), currentCharRank = (obj.arena.char.rank || 0)
@@ -56,6 +56,7 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
       notify: 0
     }
   }
+  /*
   if (charPOhour == 23 && oldData.notify.charPO == 0) {
     oldData.notify.charPO = 1
     dataChange++
@@ -65,6 +66,7 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
     }
     if(chId) SendPayoutMsg(chId, [charObj], {sId: sId})
   }
+  */
   if (shipPOhour == 23 && oldData.notify.shipPO == 0) {
     oldData.notify.shipPO = 1
     dataChange++
@@ -74,15 +76,18 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
     }
     if(chId) SendPayoutMsg(chId, [shipObj], {sId: sId})
   }
+  /*
   if (charPOhour != 23 && oldData.notify.charPO == 1) {
     oldData.notify.charPO = 0
     dataChange++
   }
+  */
   if (shipPOhour != 23 && oldData.notify.shipPO == 1) {
     oldData.notify.shipPO = 0
     dataChange++
   }
   if(pObj){
+    /*
     if (oldData.notify.charStart == 0 && pObj.notify.timeBeforePO > charPOhour) {
       oldData.notify.charStart = 1
       dataChange++
@@ -95,6 +100,7 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
 
       }
     }
+    */
     if (oldData.notify.shipStart == 0 && pObj.notify.timeBeforePO > shipPOhour) {
       oldData.notify.shipStart = 1
       dataChange++
@@ -106,16 +112,19 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
         }
       }
     }
+    /*
     if (pObj.notify.timeBeforePO != 24 && oldData.notify.charStart == 1 && charPOhour > pObj.notify.timeBeforePO) {
       oldData.notify.charStart = 0
       dataChange++
     }
+    */
     if (pObj.notify.timeBeforePO != 24 && oldData.notify.shipStart == 1 && shipPOhour > pObj.notify.timeBeforePO) {
       oldData.notify.shipStart = 0
       shipObj.notifyStart = 0
       dataChange++
     }
   }
+  /*
   if (currentCharRank > 0 && currentCharRank != oldCharRank) {
     oldData.char.currentRank = currentCharRank
     dataChange++
@@ -127,6 +136,7 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
     }
     if(chId) SendRankChange(charObj)
   }
+  */
   if (currentShipRank > 0 && currentShipRank != oldShipRank) {
     oldData.ship.currentRank = currentShipRank
     dataChange++
@@ -140,10 +150,10 @@ module.exports = async(obj = {}, oldData = null, pObj = null, chId = null, sId =
   }
   if(dataChange > 0){
     oldData.TTL = new Date()
-    mongo.set('rankCache', {_id: obj.playerId}, oldData)
+    arenaCache.set('rankCache', { _id: obj.playerId }, oldData)
     if(oldData.history){
       delete oldData.history
-      mongo.rep('rankCache', {_id: obj.playerId}, oldData)
+      arenaCache.replace('rankCache', { _id: obj.playerId }, oldData)
     }
   }
 }

@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const botRequest = require('./botrequest')
 const getShardName = require('./getShardName')
 
@@ -19,7 +19,7 @@ module.exports = async(obj = [], shard)=>{
         opts.shardId = 0
       }
       botRequest('sendDM', { sId: shard.sId, shardId: shard._id, dId: obj[i].dId, msg: { embeds: [embedMsg] } })
-      mongo.del('shardWatch', {_id: obj[i]._id})
+      arenaCache.del('shardWatch', { _id: obj[i]._id })
     }
   }catch(e){
     log.error(e)

@@ -12,9 +12,9 @@ const TruncateString = (str, num)=>{
 }
 module.exports = (uInfo = {}, aliases = [], truncate = false)=>{
   try{
-    let res = uInfo.name, alias = aliases.find(x=>x.baseId == uInfo.value)
+    let res = uInfo.nameKey, alias = aliases.find(x=>x.baseId == uInfo.baseId)
     if(alias?.alias) res = alias.alias
-    if(!alias && truncate && uInfo.name) res = TruncateString(uInfo.name, 4)
+    if(!alias && truncate && uInfo.nameKey) res = TruncateString(uInfo.nameKey, 4)
     return res
   }catch(e){
     log.error(e)

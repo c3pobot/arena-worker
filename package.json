@@ -14,7 +14,7 @@
   "dependencies": {
     "json-array-sorter": "0.0.5",
     "logger": "github:c3pobot/logger",
-    "mongoclient": "github:c3pobot/mongoclient",
+    "mongo-cache": "github:c3pobot/mongo-cache",
     "node-fetch": "^2.6.7",
     "rabbitmq-client": "^5.0.2"
   }

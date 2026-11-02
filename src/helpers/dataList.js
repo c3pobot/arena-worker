@@ -1,5 +1,5 @@
 'use strict'
 let dataList = {
-  unitList: {}
+  unitList: new Map()
 }
 module.exports = { dataList }

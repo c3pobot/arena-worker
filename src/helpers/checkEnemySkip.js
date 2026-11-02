@@ -1,5 +1,5 @@
 'use strict'
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 module.exports = async(rule = {}, obj, ranks = [], rank = 2)=>{
   try{
     if(rule.status && ranks.length > 0){
@@ -9,7 +9,7 @@ module.exports = async(rule = {}, obj, ranks = [], rank = 2)=>{
       }
       embedMsg.description += 'Possible enemies could have hit :\n'
       for(let i in ranks) embedMsg.description += '`'+ranks[i].oldRank.toString().padStart(3, ' ')+'` : '+(ranks[i].emoji)+' '+ranks[i].name+'\n'
-      mongo.math('shardHitList', {_id: obj.allyCode+'-'+obj.shardId, shardId: obj.shardId}, {enemySkip: 1})
+      arenaCache.math('shardHitList', { _id: obj.allyCode+'-'+obj.shardId, shardId: obj.shardId }, { enemySkip: 1 })
       return embedMsg
     }
   }catch(e){

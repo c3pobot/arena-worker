@@ -1,12 +1,13 @@
 'use strict'
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const SyncRank = require('./syncRank')
 module.exports = async(players = [], chId = null, sId, patreonId, guildId)=>{
   if(!players || players?.length == 0) return
   let allyCodes = players.map(u=>+u.allyCode)
-  let rankCache = await mongo.find('rankCache', { allyCode: { $in: allyCodes } })
-  let pSettings = await mongo.find('arena', { allyCode: { $in: allyCodes } })
+  let rankCache = await arenaCache.all('rankCache', { allyCode: { $in: allyCodes } })
+  let pSettings = await arenaCache.all('arena', { allyCode: { $in: allyCodes } })
   if(!pSettings || !rankCache) return
+  
   let array = [], i = players.length
   while(i--){
     let oldData = rankCache.find(x=>x._id == players[i].playerId)

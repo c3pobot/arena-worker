@@ -1,13 +1,13 @@
 'use strict'
 const { dataList } = require('./dataList')
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const sorter = require('json-array-sorter')
 const timeTillPayout = require('./timeTillPayout')
 const getLeadName = require('./getLeadName')
 const deepCopy = require('./deepCopy')
 module.exports = async(obj, players = [], auto = false) => {
   try{
-    if(players.length == 0) players = await mongo.find('shardRankCache', {shardId: obj._id}, {name: 1, poOffSet: 1, rank: 1, emoji: 1, arena: 1, allyCode: 1})
+    if(players.length == 0) players = await arenaCache.all('shardRankCache', { shardId: obj._id }, { name: 1, poOffSet: 1, rank: 1, emoji: 1, arena: 1, allyCode: 1 })
     if(players?.length > 0 ){
       if(auto && obj.rankLimit) players = players.filter(x=>obj.rankLimit >= x.rank)
       players = sorter([{column: 'rank', order: (obj.rankSort ? obj.rankSort:'ascending')}], players)
@@ -24,8 +24,8 @@ module.exports = async(obj, players = [], auto = false) => {
         if(obj.rankLeader && players[p].arena && players[p].arena[obj.type] && players[p].arena[obj.type].squad && players[p].arena[obj.type].squad.length > 0){
           tempObj.value += '**'+players[p].name+'**'
           let lead = players[p].arena[obj.type].squad.find(x=>x.squadUnitType == (obj.type == 'char' ? 2:3))
-          if(lead?.unitDefId && dataList.unitList[lead.unitDefId.split(':')[0]]){
-            let uInfo =  dataList.unitList[lead.unitDefId.split(':')[0]]
+          if(lead?.unitDefId){
+            let uInfo = dataList?.unitList?.get(lead.unitDefId.split(':')[0])
             if(uInfo){
               let leadName = getLeadName(uInfo, obj.alias, obj.truncateRankLeader)
               tempObj.value += ' ('+leadName+')'

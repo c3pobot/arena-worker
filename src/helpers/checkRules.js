@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 const checkEarlyHit = require('./checkEarlyHit')
 const checkEnemyHit = require('./checkEnemyHit')
 const checkEnemySkip = require('./checkEnemySkip')
@@ -14,7 +14,7 @@ module.exports = async(shardId, obj = [], ranks = [])=>{
     if(!obj || obj?.length == 0) return
     if(!ranks || ranks?.length == 0) return
 
-    let shard = (await mongo.find('payoutServers', { _id: shardId }, {rules: 1, sId: 1}))[0]
+    let shard = await arenaCache.get('payoutServers', { _id: shardId }, { rules: 1, sId: 1 })
     let rules = shard?.rules
     if(!rules || shard?.rule?.length == 0) return
 

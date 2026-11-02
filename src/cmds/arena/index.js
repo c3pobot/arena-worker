@@ -2,13 +2,14 @@
 const log = require('logger')
 const syncPlayers = require('./syncPlayers')
 const swgohClient = require('src/swgohClient')
-const mongo = require('mongoclient')
+const { swgohCache } = require('src/cache')
+
 module.exports = async(data = {})=>{
   //data format { name: 'arena', id: patreonId }
   log.debug(`Started sync of patreon ${data.id}`)
   if(process.env.IS_TEST) return
   let players = [], guilds = [], users = []
-  let patreon = (await mongo.find('patreon', {_id: data.id}))[0]
+  let patreon = await swgohCache.get('patreon', {_id: data.id})
   if(patreon?.guilds) guilds = Object.values(patreon.guilds)
   if(patreon?.users) users = Object.values(patreon.users)
   if(guilds?.length > 0){

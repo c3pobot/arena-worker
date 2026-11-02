@@ -1,6 +1,6 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
 
 const { GetPOHour, NotifyPO, NotifyRankChange, NotifyStart, RankWatchNotify, SendAdminMsg, SendRankChange } = require('src/helpers')
 
@@ -8,7 +8,7 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
 
   if(sObj && aObj && shard.type && shard.alt && shard._id){
     let adminMsg = '', pId = sObj.allyCode+'-'+shard._id, dataChange = 0
-    if(!sObj.type) mongo.set('shardPlayers', { _id: pId}, { type:shard.type })
+    if(!sObj.type) arenaCache.set('shardPlayers', { _id: pId }, { type:shard.type })
     let currentMainRank = (+aObj.arena[shard.type].rank || 0), currentAltRank = (+aObj.arena[shard.alt].rank || 0), poHourMain = GetPOHour(aObj.poOffSet, shard.type), poHourAlt = GetPOHour(aObj.poOffSet, shard.alt);
     if(!oldData){
       oldData = {
@@ -93,7 +93,7 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
       if(shard.adminMsg) SendAdminMsg({emoji:sObj.emoji, newName: aObj.name, oldName: oldData.name, oldOffSet: oldData.poOffSet, newOffSet: aObj.poOffSet}, shard)
       oldData.name = aObj.name
       oldData.poOffSet = aObj.poOffSet
-      mongo.set('shardPlayers', {_id: pId}, {name: aObj.name, poOffSet: aObj.poOffSet})
+      arenaCache.set('shardPlayers', { _id: pId }, { name: aObj.name, poOffSet: aObj.poOffSet })
       dataChange++
     }
     if(sObj.emoji != oldData.emoji){
@@ -109,6 +109,7 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
       }
       rankObj.po.main.push(mainMsg)
     }
+    /*
     if (poHourAlt == 23 && oldData.notify.poNotifyAlt == 0) {
       oldData.notify.poNotifyAlt = 1
       dataChange++
@@ -118,14 +119,17 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
       }
       rankObj.po.alt.push(altMsg)
     }
+    */
     if(poHourMain != 23 && oldData.notify.poNotify == 1){
       oldData.notify.poNotify = 0
       dataChange++
     }
+    /*
     if(poHourAlt != 23 && oldData.notify.poNotifyAlt == 1){
       oldData.notify.poNotifyAlt = 0
       dataChange++
     }
+    */
     if(poHourMain < sObj.notify.startTime && oldData.notify.start == 0){
       oldData.notify.start = 1
       dataChange++;
@@ -137,6 +141,7 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
         }
       }
     }
+    /*
     if (poHourAlt < sObj.notify.startTime && oldData.notify.altStart == 0) {
       oldData.notify.altStart = 1
       dataChange++;
@@ -148,14 +153,17 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
         }
       }
     }
+    */
     if (poHourMain > sObj.notify.startTime && sObj.notify.startTime != 24 && oldData.notify.start == 1) {
       oldData.notify.start = 0
       dataChange++
     }
+    /*
     if (poHourAlt > sObj.notify.startTime && sObj.notify.startTime != 24 && oldData.notify.altStart == 1) {
       oldData.notify.altStart = 0
       dataChange++
     }
+    */
     if (oldRankMain != currentMainRank) {
       oldData.ranks[shard.type].oldRank = oldRankMain;
       oldData.ranks[shard.type].newRank = currentMainRank;
@@ -190,6 +198,7 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
       SendRankChange(mainMsg)
       dataChange++
     }
+    /*
     if (oldRankAlt != currentAltRank) {
       oldData.ranks[shard.alt].oldRank = oldRankAlt;
       oldData.ranks[shard.alt].newRank = currentAltRank;
@@ -200,12 +209,13 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
       SendRankChange(altMsg)
       dataChange++
     }
+    */
     if(dataChange > 0){
       oldData.TTL = new Date()
-      mongo.set('shardRankCache', {_id: pId}, oldData)
+      arenaCache.set('shardRankCache', {_id: pId}, oldData)
       if(oldData.history){
         delete oldData.history
-        mongo.rep('shardRankCache', {_id: pId}, oldData)
+        arenaCache.replace('shardRankCache', {_id: pId}, oldData)
       }
     }
     rankObj.shard.push({
@@ -221,7 +231,7 @@ const SyncPlayer = async(sObj = {}, shardPlayers = [], aObj, players = [], oldDa
 }
 module.exports = async(shardPlayers = [], playersFormated = [], shard = {}, watchObj)=>{
   let rankObj = {po: {main: [], alt: []}, start: {main: [], alt: []}, shard: [], watch: [], enemyWatch: [], rules: []}
-  let oldPlayers = await mongo.find('shardRankCache', { _id: { $regex: shard._id } })
+  let oldPlayers = await arenaCache.all('shardRankCache', { _id: { $regex: shard._id } })
   if(!oldPlayers) return rankObj
 
   let array = [], i = shardPlayers.length

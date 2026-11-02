@@ -1,6 +1,7 @@
 'use strict'
 const timeTillPayout = require('./timeTillPayout')
-const mongo = require('mongoclient')
+const { arenaCache } = require('src/cache')
+
 module.exports = async(rule = {}, obj, checkEnemy = 2, ranks = [], enemySkips = {})=>{
   try{
     if(rule.status && obj.swap){
@@ -18,9 +19,9 @@ module.exports = async(rule = {}, obj, checkEnemy = 2, ranks = [], enemySkips = 
             let tempEnemy = 'Possible enemies could have hit :\n'
             for(let i in ranks) tempEnemy += '`'+ranks[i].oldRank.toString().padStart(3, ' ')+'` : '+(ranks[i].emoji)+' '+ranks[i].name+'\n'
             embedMsg.description += tempEnemy
-            if(enemySkips.status) mongo.math('shardHitList', {_id: obj.allyCode+'-'+obj.shardId, shardId: obj.shardId}, {enemySkip: 1})
+            if(enemySkips.status) arenaCache.math('shardHitList', { _id: obj.allyCode+'-'+obj.shardId, shardId: obj.shardId }, { enemySkip: 1 })
           }
-          mongo.math('shardHitList', {_id: obj.allyCode+'-'+obj.shardId, shardId: obj.shardId}, {early: 1})
+          arenaCache.math('shardHitList', { _id: obj.allyCode+'-'+obj.shardId, shardId: obj.shardId }, { early: 1 })
           return embedMsg
         }
       }

@@ -1,6 +1,7 @@
 'use strict'
 const log = require('logger')
-const mongo = require('mongoclient')
+const cache = require('./cache')
+const checkMongoIndexes = require('./check_mongo_indexes')
 const rabbitmq = require('./rabbitmq')
 const cmdQue = require('./cmdQue')
 const swgohClient = require('./swgohClient')
@@ -12,15 +13,21 @@ require('./exchange')
 const CheckMongo = ()=>{
   try{
     log.debug(`start up mongo check...`)
-    let status = mongo.status()
-    if(status){
-      CheckRabbitMQ()
-      return
-    }
+    if(cache.status()) return checkIndexes()
     setTimeout(CheckMongo, 5000)
   }catch(e){
     log.error(e)
     setTimeout(CheckMongo, 5000)
+  }
+}
+const checkIndexes = async()=>{
+  try{
+    let status = await checkMongoIndexes()
+    if(status) return CheckRabbitMQ()
+    setTimeout(checkIndexes, 5000)
+  }catch(e){
+    log.error(e)
+    setTimeout(checkIndexes, 5000)
   }
 }
 const CheckRabbitMQ = ()=>{
